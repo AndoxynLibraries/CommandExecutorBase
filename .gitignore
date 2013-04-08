@@ -1,2 +1,7 @@
+# Package Files #
 /build/
 /dist/
+*.class
+*.jar
+*.war
+*.ear
