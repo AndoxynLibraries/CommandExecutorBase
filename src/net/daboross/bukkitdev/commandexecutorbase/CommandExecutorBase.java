@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -27,7 +28,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
      * Initialize a sub command on this executor.
      */
     protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String[] arguments, String helpString) {
-        aliasMap.put(cmd.toLowerCase(), cmd.toLowerCase());
+        aliasMap.put(cmd.toLowerCase(), cmd.toLowerCase(Locale.ENGLISH));
         for (String alias : aliases) {
             aliasMap.put(alias.toLowerCase(), cmd.toLowerCase());
         }
@@ -89,7 +90,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
             return null;
         }
         String commandName;
-        if (aliasMap.containsKey(args[0].toLowerCase())) {
+        if (aliasMap.containsKey(args[0].toLowerCase(Locale.ENGLISH))) {
             commandName = aliasMap.get(args[0].toLowerCase());
         } else {
             invalidSubCommandMessage(sender, cmd, label, args);

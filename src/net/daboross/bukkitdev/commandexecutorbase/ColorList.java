@@ -9,7 +9,7 @@ import org.bukkit.ChatColor;
  *
  * @author daboross
  */
-public final class ColorList implements Serializable {
+public final class ColorList {
 
     /**
      * This is the main color.
