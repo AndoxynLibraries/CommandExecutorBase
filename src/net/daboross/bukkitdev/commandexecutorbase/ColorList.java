@@ -1,6 +1,5 @@
 package net.daboross.bukkitdev.commandexecutorbase;
 
-import java.io.Serializable;
 import org.bukkit.ChatColor;
 
 /**
@@ -24,7 +23,7 @@ public final class ColorList {
      */
     public static final String NUMBER = ChatColor.RED.toString();
     /**
-     * This is the color for commands, EG /asdf shold be this color.
+     * This is the color for commands, EG /asdf should be this color.
      */
     public static final String CMD = ChatColor.GREEN.toString();
     /**
@@ -32,7 +31,7 @@ public final class ColorList {
      */
     public static final String HELP = ChatColor.DARK_AQUA.toString();
     /**
-     * This is the color for Sub Commands, EG in /asdf gl, GL should be this
+     * This is the color for Sub Commands, EG in /asdf GL, GL should be this
      * color.
      */
     public static final String SUBCMD = ChatColor.AQUA.toString();
@@ -46,6 +45,11 @@ public final class ColorList {
      * NUMBER, PLAYERNAME and NUMBER would be this color.
      */
     public static final String ARGS = ChatColor.BLUE.toString();
+    /**
+     * This is the color for Arguments of a command, EG in /asdf gl [PLAYERNAME]
+     * [NUMBER],the []s would be this color.
+     */
+    public static final String ARGS_SURROUNDER = ChatColor.DARK_BLUE.toString();
     /**
      * This is the color for messages saying that the user has supplied an
      * Illegal Argument for a command.

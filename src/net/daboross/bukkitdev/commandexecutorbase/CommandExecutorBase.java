@@ -28,30 +28,37 @@ public abstract class CommandExecutorBase implements TabExecutor {
      * Initialize a sub command on this executor.
      */
     protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String[] arguments, String helpString) {
-        aliasMap.put(cmd.toLowerCase(), cmd.toLowerCase(Locale.ENGLISH));
-        for (String alias : aliases) {
-            aliasMap.put(alias.toLowerCase(), cmd.toLowerCase());
+        String lowerCaseCmd = cmd.toLowerCase(Locale.ENGLISH);
+        aliasMap.put(lowerCaseCmd, cmd.toLowerCase(Locale.ENGLISH));
+        isConsoleMap.put(lowerCaseCmd, isConsole);
+        permMap.put(lowerCaseCmd, permission.toLowerCase());
+        helpList.put(lowerCaseCmd, helpString);
+        if (arguments != null) {
+            argsMap.put(lowerCaseCmd, arguments);
+        } else {
+            argsMap.put(lowerCaseCmd, new String[0]);
         }
-        isConsoleMap.put(cmd.toLowerCase(), isConsole);
-        permMap.put(cmd.toLowerCase(), permission.toLowerCase());
-        helpList.put(cmd.toLowerCase(), helpString);
-        helpAliasMap.put(cmd.toLowerCase(), aliases);
-        argsMap.put(cmd.toLowerCase(), arguments);
+        if (aliases != null) {
+            for (String alias : aliases) {
+                aliasMap.put(alias.toLowerCase(), lowerCaseCmd);
+            }
+            helpAliasMap.put(lowerCaseCmd, aliases);
+        }
     }
 
     protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String helpString) {
-        initCommand(cmd, aliases, isConsole, permission, new String[0], helpString);
+        initCommand(cmd, aliases, isConsole, permission, null, helpString);
     }
 
     protected void initCommand(String cmd, boolean isConsole, String permission, String[] arguments, String helpString) {
-        initCommand(cmd, new String[0], isConsole, permission, arguments, helpString);
+        initCommand(cmd, null, isConsole, permission, arguments, helpString);
     }
 
     protected void initCommand(String cmd, boolean isConsole, String permission, String helpString) {
-        initCommand(cmd, new String[0], isConsole, permission, new String[0], helpString);
+        initCommand(cmd, null, isConsole, permission, null, helpString);
     }
 
-    private void invalidSubCommandMessage(CommandSender sender, Command cmd, String label, String[] args) {
+    private void invalidSubCommandMessage(CommandSender sender, String label, String[] args) {
         sender.sendMessage(ColorList.MAIN + "The SubCommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " Does not exist for the command " + ColorList.CMD + "/" + getCommandName());
         sender.sendMessage(ColorList.MAIN + "To see all possible sub commands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
@@ -93,7 +100,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
         if (aliasMap.containsKey(args[0].toLowerCase(Locale.ENGLISH))) {
             commandName = aliasMap.get(args[0].toLowerCase());
         } else {
-            invalidSubCommandMessage(sender, cmd, label, args);
+            invalidSubCommandMessage(sender, label, args);
             return null;
         }
         if (sender instanceof Player) {
@@ -149,25 +156,44 @@ public abstract class CommandExecutorBase implements TabExecutor {
     }
 
     protected String getHelpMessage(String alias, String baseCommand) {
-        String str = aliasMap.get(alias);
-        return (ColorList.CMD + "/" + baseCommand + ColorList.SUBCMD + " " + alias + ColorList.HELP + " " + helpList.get(aliasMap.get(str)));
+        String subCmd = aliasMap.get(alias);
+        StringBuilder resultBuilder = new StringBuilder();
+        appendArgsString(subCmd, resultBuilder.append(ColorList.CMD).append("/").append(baseCommand).append(ColorList.SUBCMD).append(" ").append(alias).append(" ")).append(ColorList.HELP).append(helpList.get(subCmd));
+        return resultBuilder.toString();
     }
 
     protected String getMultipleAliasHelpMessage(String alias, String baseCommand) {
         StringBuilder resultStringBuilder = new StringBuilder(ColorList.CMD);
-        resultStringBuilder.append(baseCommand);
-        resultStringBuilder.append(ColorList.SUBCMD);
-        resultStringBuilder.append(" ");
+        resultStringBuilder.append(baseCommand).append(ColorList.SUBCMD).append(" ");
         String subcmd = aliasMap.get(alias);
         String[] aliasList = helpAliasMap.get(subcmd);
         resultStringBuilder.append(subcmd);
         for (String str : aliasList) {
             resultStringBuilder.append(ColorList.DIVIDER).append("/").append(ColorList.SUBCMD).append(str);
         }
-        resultStringBuilder.append(" ");
-        resultStringBuilder.append(ColorList.HELP);
-        resultStringBuilder.append(helpList.get(subcmd));
+        appendArgsString(subcmd, resultStringBuilder.append(" ")).append(ColorList.HELP).append(helpList.get(subcmd));
         return resultStringBuilder.toString();
+    }
+
+    protected String getArgsString(String cmd) {
+        String[] args = argsMap.get(cmd);
+        StringBuilder resultBuilder = new StringBuilder(ColorList.ARGS_SURROUNDER);
+        for (String arg : args) {
+            resultBuilder.append("<").append(ColorList.ARGS).append(arg).append(ColorList.ARGS_SURROUNDER).append("> ");
+        }
+        return resultBuilder.toString();
+    }
+
+    /**
+     * @return The original StringBuildger.
+     */
+    protected StringBuilder appendArgsString(String cmd, StringBuilder builder) {
+        String[] args = argsMap.get(cmd);
+        builder.append(ColorList.ARGS_SURROUNDER);
+        for (String arg : args) {
+            builder.append("<").append(ColorList.ARGS).append(arg).append(ColorList.ARGS_SURROUNDER).append("> ");
+        }
+        return builder;
     }
 
     @Override
@@ -187,7 +213,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
                     }
                 }
             } else if (aliasMap.containsKey(args[1])) {
-                returnList.addAll(Arrays.asList(getArgs(args[1])));
+//                returnList.addAll(Arrays.asList(getArgs(args[1])));
             }
         }
         return returnList;
