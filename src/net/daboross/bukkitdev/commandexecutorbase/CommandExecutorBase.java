@@ -168,8 +168,10 @@ public abstract class CommandExecutorBase implements TabExecutor {
         String subcmd = aliasMap.get(alias);
         String[] aliasList = helpAliasMap.get(subcmd);
         resultStringBuilder.append(subcmd);
-        for (String str : aliasList) {
-            resultStringBuilder.append(ColorList.DIVIDER).append("/").append(ColorList.SUBCMD).append(str);
+        if (aliasList != null) {
+            for (String str : aliasList) {
+                resultStringBuilder.append(ColorList.DIVIDER).append("/").append(ColorList.SUBCMD).append(str);
+            }
         }
         appendArgsString(subcmd, resultStringBuilder.append(" ")).append(ColorList.HELP).append(helpList.get(subcmd));
         return resultStringBuilder.toString();
@@ -177,6 +179,9 @@ public abstract class CommandExecutorBase implements TabExecutor {
 
     protected String getArgsString(String cmd) {
         String[] args = argsMap.get(cmd);
+        if (args == null) {
+            return "";
+        }
         StringBuilder resultBuilder = new StringBuilder(ColorList.ARGS_SURROUNDER);
         for (String arg : args) {
             resultBuilder.append("<").append(ColorList.ARGS).append(arg).append(ColorList.ARGS_SURROUNDER).append("> ");
@@ -189,6 +194,9 @@ public abstract class CommandExecutorBase implements TabExecutor {
      */
     protected StringBuilder appendArgsString(String cmd, StringBuilder builder) {
         String[] args = argsMap.get(cmd);
+        if (args == null) {
+            return builder;
+        }
         builder.append(ColorList.ARGS_SURROUNDER);
         for (String arg : args) {
             builder.append("<").append(ColorList.ARGS).append(arg).append(ColorList.ARGS_SURROUNDER).append("> ");
