@@ -148,7 +148,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
         sender.sendMessage(ColorList.MAIN + "List Of Possible Sub Commands:");
         for (String str : aliasMap.keySet()) {
             if (str.equalsIgnoreCase(aliasMap.get(str))) {
-                if (sender.hasPermission(str)) {
+                if (sender.hasPermission(permMap.get(aliasMap.get(str)))) {
                     sender.sendMessage(getMultipleAliasHelpMessage(str, mainCommandLabel));
                 }
             }
@@ -164,10 +164,9 @@ public abstract class CommandExecutorBase implements TabExecutor {
 
     protected String getMultipleAliasHelpMessage(String alias, String baseCommand) {
         StringBuilder resultStringBuilder = new StringBuilder(ColorList.CMD);
-        resultStringBuilder.append(baseCommand).append(ColorList.SUBCMD).append(" ");
         String subcmd = aliasMap.get(alias);
         String[] aliasList = helpAliasMap.get(subcmd);
-        resultStringBuilder.append(subcmd);
+        resultStringBuilder.append("/").append(baseCommand).append(ColorList.SUBCMD).append(" ").append(subcmd);
         if (aliasList != null) {
             for (String str : aliasList) {
                 resultStringBuilder.append(ColorList.DIVIDER).append("/").append(ColorList.SUBCMD).append(str);
