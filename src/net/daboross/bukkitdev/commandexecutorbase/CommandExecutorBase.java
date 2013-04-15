@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
  * @author daboross
  */
 public abstract class CommandExecutorBase implements TabExecutor {
-    
+
     private final Map<String, String> aliasMap = new HashMap<String, String>();
     private final Map<String, Boolean> isConsoleMap = new HashMap<String, Boolean>();
     private final Map<String, String> helpList = new HashMap<String, String>();
@@ -25,7 +25,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
     private final Map<String, String> permMap = new HashMap<String, String>();
     private final Map<String, CommandReactor> reactorMap = new HashMap<String, CommandReactor>();
     private final CommandExecutorBridge commandExecutorBridge = new CommandExecutorBridge(this);
-    
+
     {
         initCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", null);
     }
@@ -57,29 +57,29 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
         reactorMap.put(lowerCaseCmd, commandReactor);
     }
-    
+
     protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String helpString, CommandReactor commandReactor) {
         initCommand(cmd, aliases, isConsole, permission, null, helpString, commandReactor);
     }
-    
+
     protected void initCommand(String cmd, boolean isConsole, String permission, String[] arguments, String helpString, CommandReactor commandReactor) {
         initCommand(cmd, null, isConsole, permission, arguments, helpString, commandReactor);
     }
-    
+
     protected void initCommand(String cmd, boolean isConsole, String permission, String helpString, CommandReactor commandReactor) {
         initCommand(cmd, null, isConsole, permission, null, helpString, commandReactor);
     }
-    
+
     private void invalidSubCommandMessage(CommandSender sender, String label, String[] args) {
         sender.sendMessage(ColorList.MAIN + "The SubCommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " Does not exist for the command " + ColorList.CMD + "/" + getCommandName());
         sender.sendMessage(ColorList.MAIN + "To see all possible sub commands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
-    
+
     private void noSubCommandMessage(CommandSender sender, String label, String[] args) {
         sender.sendMessage(ColorList.MAIN + "This is a base command, Please Use a sub command after it.");
         sender.sendMessage(ColorList.MAIN + "To see all possible sub commands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
-    
+
     private void noPermissionMessage(CommandSender sender, String label, String[] args) {
         if (args == null || args.length < 1) {
             sender.sendMessage(ColorList.NOPERM + "You don't have permission to run " + ColorList.CMD + "/" + label);
@@ -87,7 +87,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
             sender.sendMessage(ColorList.NOPERM + "You don't have permission to run " + ColorList.CMD + "/" + label + " " + ColorList.SUBCMD + args[0]);
         }
     }
-    
+
     private void noConsoleMessage(CommandSender sender, String label, String[] args) {
         sender.sendMessage(ColorList.NOPERM + "The command " + ColorList.CMD + "/" + label + (args.length > 0 ? (ColorList.SUBCMD + args[0]) : "") + ColorList.NOPERM + " must be run by a player");
     }
@@ -133,12 +133,12 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
         return commandName;
     }
-    
+
     protected boolean hasPermission(CommandSender sender, String commandName) {
         String permission = permMap.get(commandName);
         return (permission == null || sender.hasPermission(permission) || !(sender instanceof Player));
     }
-    
+
     protected String[] getArgs(String alias) {
         return argsMap.get(aliasMap.get(alias));
     }
@@ -154,7 +154,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
             return new String[0];
         }
     }
-    
+
     protected void runHelpCommand(CommandSender sender, Command mainCommand, String mainCommandLabel, String[] subCommandArgs) {
         sender.sendMessage(ColorList.MAIN + "List Of Possible Sub Commands:");
         for (String str : aliasMap.keySet()) {
@@ -165,14 +165,14 @@ public abstract class CommandExecutorBase implements TabExecutor {
             }
         }
     }
-    
+
     protected String getHelpMessage(String alias, String baseCommand) {
         String subCmd = aliasMap.get(alias);
         StringBuilder resultBuilder = new StringBuilder();
         appendArgsString(subCmd, resultBuilder.append(ColorList.CMD).append("/").append(baseCommand).append(ColorList.SUBCMD).append(" ").append(alias).append(" ")).append(ColorList.HELP).append(helpList.get(subCmd));
         return resultBuilder.toString();
     }
-    
+
     protected String getMultipleAliasHelpMessage(String alias, String baseCommand) {
         StringBuilder resultStringBuilder = new StringBuilder(ColorList.CMD);
         String subcmd = aliasMap.get(alias);
@@ -186,7 +186,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
         appendArgsString(subcmd, resultStringBuilder.append(" ")).append(ColorList.HELP).append(helpList.get(subcmd));
         return resultStringBuilder.toString();
     }
-    
+
     protected String getArgsString(String cmd) {
         String[] args = argsMap.get(cmd);
         if (args == null) {
@@ -213,7 +213,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
         return builder;
     }
-    
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         ArrayList<String> returnList = new ArrayList<String>();
@@ -236,7 +236,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
         return returnList;
     }
-    
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (cmd.getName().equalsIgnoreCase(getCommandName())) {
@@ -254,40 +254,40 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
         return false;
     }
-    
+
     protected abstract String getCommandName();
-    
+
     protected abstract String getMainCmdPermission();
-    
+
     public static interface CommandReactor {
-        
+
         public void runCommand(final CommandSender sender, final Command mainCommand, final String mainCommandLabel, final String subCommand, final String subCommandLabel, final String[] subCommandArgs, final CommandExecutorBridge executorBridge);
     }
-    
+
     public static class CommandExecutorBridge {
-        
+
         private final CommandExecutorBase commandExecutorBase;
-        
+
         private CommandExecutorBridge(final CommandExecutorBase commandExecutorBase) {
             this.commandExecutorBase = commandExecutorBase;
         }
-        
+
         public String[] getArgs(String alias) {
             return commandExecutorBase.getArgs(alias);
         }
-        
+
         public StringBuilder appendArgsString(String cmd, StringBuilder builder) {
             return commandExecutorBase.appendArgsString(cmd, builder);
         }
-        
+
         public String getArgsString(String cmd) {
             return commandExecutorBase.getArgsString(cmd);
         }
-        
+
         public String getHelpMessage(String alias, String baseCommand) {
             return commandExecutorBase.getHelpMessage(alias, baseCommand);
         }
-        
+
         public String getMultipleAliasHelpMessage(String alias, String baseCommand) {
             return commandExecutorBase.getMultipleAliasHelpMessage(alias, baseCommand);
         }
