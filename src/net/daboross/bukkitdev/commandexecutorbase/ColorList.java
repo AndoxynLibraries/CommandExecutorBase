@@ -15,6 +15,14 @@ public final class ColorList {
      */
     public static final String MAIN = ChatColor.DARK_AQUA.toString();
     /**
+     * This is the color used at the top of a list.
+     */
+    public static final String TOP_OF_LIST = ChatColor.DARK_GREEN.toString();
+    /**
+     * Separator at the top of a list. E.G. --.
+     */
+    public static final String TOP_OF_LIST_SEPERATOR = ChatColor.BLUE.toString();
+    /**
      * This is the color for Player's Usernames.
      */
     public static final String NAME = ChatColor.GREEN.toString();
