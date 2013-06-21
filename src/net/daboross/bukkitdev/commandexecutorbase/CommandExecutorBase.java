@@ -29,7 +29,11 @@ public abstract class CommandExecutorBase implements TabExecutor {
     private final CommandExecutorBridge commandExecutorBridge = new CommandExecutorBridge(this);
 
     {
-        initCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", null);
+        initCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new CommandReactor() {
+            public void runCommand(CommandSender sender, Command mainCommand, String mainCommandLabel, String subCommand, String subCommandLabel, String[] subCommandArgs, CommandExecutorBridge executorBridge) {
+                runHelpCommand(sender, mainCommand, mainCommandLabel);
+            }
+        });
     }
 
     /**
@@ -37,9 +41,9 @@ public abstract class CommandExecutorBase implements TabExecutor {
      */
     protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String[] arguments, String helpString, CommandReactor commandReactor) {
         if (cmd == null) {
-            throw new IllegalArgumentException("Null cmd argument passed to initCommand()");
+            throw new IllegalArgumentException("Null cmd passed to initCommand()");
         } else if (commandReactor == null) {
-            throw new IllegalArgumentException("Null commandreactor argument passed to initCommand()");
+            throw new IllegalArgumentException("Null commandreactor passed to initCommand()");
         }
         String lowerCaseCmd = cmd.toLowerCase(Locale.ENGLISH);
         aliasMap.put(lowerCaseCmd, cmd.toLowerCase(Locale.ENGLISH));
@@ -49,7 +53,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
         if (permission != null) {
             permMap.put(lowerCaseCmd, permission.toLowerCase());
         }
-        helpList.put(lowerCaseCmd, helpString == null ? "Null Help Message" : helpString);
+        helpList.put(lowerCaseCmd, helpString == null ? "Null help message" : helpString);
         if (arguments != null) {
             argsMap.put(lowerCaseCmd, arguments);
         } else {
@@ -77,12 +81,12 @@ public abstract class CommandExecutorBase implements TabExecutor {
     }
 
     private void invalidSubCommandMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.MAIN + "The subcommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " Does not exist for the command " + ColorList.CMD + "/" + label);
+        sender.sendMessage(ColorList.MAIN + "The subcommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " does not exist for the command " + ColorList.CMD + "/" + label);
         sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
     private void noSubCommandMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.MAIN + "This is a base command, please Use a subcommand after it.");
+        sender.sendMessage(ColorList.MAIN + "This is a base command, please use a subcommand after it.");
         sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
@@ -99,15 +103,8 @@ public abstract class CommandExecutorBase implements TabExecutor {
     }
 
     /**
-     * This will check if the command given is a valid sub command. It will
-     * display the correct messages to the player IF the command is not valid in
-     * any way. This will check if the command exists, and return null if it
-     * doesn't. If the command must be run by a player and the sender isn't a
-     * player then this will return null. This will check if the player has
-     * permission to access the command, and if they don't, this will tell them
-     * they don't and return null. If none of the above, then this will return
-     * the command given, aliases turned into the base command. This will run
-     * the help message and return null if the sub command is "help".
+     * This will check if the command given is a valid subcommand and the
+     * sender can run this subcommand.
      */
     protected String isCommandValid(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission(getMainCmdPermission())) {
@@ -132,10 +129,6 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
         if (!hasPermission(sender, commandName)) {
             noPermissionMessage(sender, label, args);
-            return null;
-        }
-        if (commandName.equalsIgnoreCase("help")) {
-            runHelpCommand(sender, cmd, label, getSubArray(args));
             return null;
         }
         return commandName;
@@ -165,8 +158,8 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
     }
 
-    protected void runHelpCommand(CommandSender sender, Command mainCommand, String mainCommandLabel, String[] subCommandArgs) {
-        sender.sendMessage(ColorList.MAIN + "List Of Possible Sub Commands:");
+    protected void runHelpCommand(CommandSender sender, Command mainCommand, String mainCommandLabel) {
+        sender.sendMessage(ColorList.MAIN + "List of possible subcommands:");
         for (String str : aliasMap.keySet()) {
             if (str.equals(aliasMap.get(str))) {
                 if (hasPermission(sender, str)) {
