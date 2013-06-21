@@ -1,7 +1,6 @@
 package net.daboross.bukkitdev.commandexecutorbase;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,80 +16,83 @@ import org.bukkit.entity.Player;
  *
  * @author daboross
  */
-public abstract class CommandExecutorBase implements TabExecutor {
+public class CommandExecutorBase implements TabExecutor {
 
-    private final Map<String, String> aliasMap = new HashMap<String, String>();
-    private final Set<String> playerOnlyCommands = new HashSet<String>();
-    private final Map<String, String> helpList = new HashMap<String, String>();
-    private final Map<String, String[]> helpAliasMap = new HashMap<String, String[]>();
-    private final Map<String, String[]> argsMap = new HashMap<String, String[]>();
-    private final Map<String, String> permMap = new HashMap<String, String>();
-    private final Map<String, CommandReactor> reactorMap = new HashMap<String, CommandReactor>();
+    private final Map<String, SubCommand> aliasToCommandMap = new HashMap<String, SubCommand>();
+    private final Set<SubCommand> subCommands = new HashSet<SubCommand>();
     private final CommandExecutorBridge commandExecutorBridge = new CommandExecutorBridge(this);
+    private final String commandPermission;
 
-    {
-        initCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new CommandReactor() {
-            public void runCommand(CommandSender sender, Command mainCommand, String mainCommandLabel, String subCommand, String subCommandLabel, String[] subCommandArgs, CommandExecutorBridge executorBridge) {
-                runHelpCommand(sender, mainCommand, mainCommandLabel);
+    public CommandExecutorBase(String commandPermission) {
+        this.commandPermission = commandPermission;
+        addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new SubCommandHandler() {
+            public void runCommand(CommandSender sender, Command mainCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs, CommandExecutorBridge executorBridge) {
+                sender.sendMessage(ColorList.TOP_OF_LIST_SEPERATOR + " -- " + ColorList.TOP_OF_LIST + "Command Help" + ColorList.TOP_OF_LIST_SEPERATOR + " --");
+                for (SubCommand subCommandVar : subCommands) {
+                    if (hasPermission(sender, subCommandVar)) {
+                        sender.sendMessage(getHelpMessage(subCommandVar, baseCommandLabel));
+                    }
+                }
             }
-        });
+        }));
     }
 
-    /**
-     * Initialize a sub command on this executor.
-     */
-    protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String[] arguments, String helpString, CommandReactor commandReactor) {
-        if (cmd == null) {
-            throw new IllegalArgumentException("Null cmd passed to initCommand()");
-        } else if (commandReactor == null) {
-            throw new IllegalArgumentException("Null commandreactor passed to initCommand()");
+    public final void addSubCommand(SubCommand subCommand) {
+        if (subCommand == null) {
+            throw new IllegalArgumentException("Null subCommand");
         }
-        String lowerCaseCmd = cmd.toLowerCase(Locale.ENGLISH);
-        aliasMap.put(lowerCaseCmd, cmd.toLowerCase(Locale.ENGLISH));
-        if (!isConsole) {
-            playerOnlyCommands.add(lowerCaseCmd);
+        subCommands.add(subCommand);
+        aliasToCommandMap.put(subCommand.command, subCommand);
+        for (String alias : subCommand.aliasesUnmodifiable) {
+            aliasToCommandMap.put(alias, subCommand);
         }
-        if (permission != null) {
-            permMap.put(lowerCaseCmd, permission.toLowerCase());
+        subCommand.usingCommand(this);
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        SubCommand subCommand = getAndCheckCommand(sender, cmd, label, args);
+        if (subCommand != null) {
+            String[] subArgs = ArrayHelpers.getSubArray(args, 1, args.length - 1);
+            subCommand.commandHandler.runCommand(sender, cmd, label, subCommand, args[0], subArgs, commandExecutorBridge);
         }
-        helpList.put(lowerCaseCmd, helpString == null ? "Null help message" : helpString);
-        if (arguments != null) {
-            argsMap.put(lowerCaseCmd, arguments);
+        return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        ArrayList<String> returnList = new ArrayList<String>();
+        if (args.length == 0) {
+            for (String alias : aliasToCommandMap.keySet()) {
+                returnList.add(alias);
+            }
+        } else if (args.length == 1) {
+            for (String alias : aliasToCommandMap.keySet()) {
+                if (alias.startsWith(args[0].toLowerCase(Locale.ENGLISH))) {
+                    if (hasPermission(sender, aliasToCommandMap.get(alias))) {
+                        returnList.add(alias);
+                    }
+                }
+            }
         } else {
-            argsMap.put(lowerCaseCmd, new String[0]);
-        }
-        if (aliases != null) {
-            for (String alias : aliases) {
-                aliasMap.put(alias.toLowerCase(), lowerCaseCmd);
+            SubCommand subCommand = aliasToCommandMap.get(args[1].toLowerCase(Locale.ENGLISH));
+            if (subCommand != null) {
             }
-            helpAliasMap.put(lowerCaseCmd, aliases);
         }
-        reactorMap.put(lowerCaseCmd, commandReactor);
+        return returnList;
     }
 
-    protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String helpString, CommandReactor commandReactor) {
-        initCommand(cmd, aliases, isConsole, permission, null, helpString, commandReactor);
-    }
-
-    protected void initCommand(String cmd, boolean isConsole, String permission, String[] arguments, String helpString, CommandReactor commandReactor) {
-        initCommand(cmd, null, isConsole, permission, arguments, helpString, commandReactor);
-    }
-
-    protected void initCommand(String cmd, boolean isConsole, String permission, String helpString, CommandReactor commandReactor) {
-        initCommand(cmd, null, isConsole, permission, null, helpString, commandReactor);
-    }
-
-    private void invalidSubCommandMessage(CommandSender sender, String label, String[] args) {
+    private void sendInvalidSubCommandMessage(CommandSender sender, String label, String[] args) {
         sender.sendMessage(ColorList.MAIN + "The subcommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " does not exist for the command " + ColorList.CMD + "/" + label);
         sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
-    private void noSubCommandMessage(CommandSender sender, String label, String[] args) {
+    private void sendNoSubCommandMessage(CommandSender sender, String label, String[] args) {
         sender.sendMessage(ColorList.MAIN + "This is a base command, please use a subcommand after it.");
         sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
-    private void noPermissionMessage(CommandSender sender, String label, String[] args) {
+    private void sendNoPermissionMessage(CommandSender sender, String label, String[] args) {
         if (args == null || args.length < 1) {
             sender.sendMessage(ColorList.NOPERM + "You don't have permission to run " + ColorList.CMD + "/" + label);
         } else {
@@ -98,191 +100,84 @@ public abstract class CommandExecutorBase implements TabExecutor {
         }
     }
 
-    private void noConsoleMessage(CommandSender sender, String label, String[] args) {
+    private void sendPlayerOnlyMessage(CommandSender sender, String label, String[] args) {
         sender.sendMessage(ColorList.NOPERM + "The command " + ColorList.CMD + "/" + label + (args.length > 0 ? (ColorList.SUBCMD + args[0]) : "") + ColorList.NOPERM + " must be run by a player");
     }
 
-    /**
-     * This will check if the command given is a valid subcommand and the sender
-     * can run this subcommand.
-     */
-    protected String isCommandValid(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!sender.hasPermission(getMainCmdPermission())) {
-            noPermissionMessage(sender, label, null);
+    protected SubCommand getAndCheckCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!hasMainPermission(sender)) {
+            sendNoPermissionMessage(sender, label, null);
             return null;
         }
         if (args.length < 1) {
-            noSubCommandMessage(sender, label, args);
+            sendNoSubCommandMessage(sender, label, args);
             return null;
         }
-        String commandName;
-        if (aliasMap.containsKey(args[0].toLowerCase(Locale.ENGLISH))) {
-            commandName = aliasMap.get(args[0].toLowerCase());
-        } else {
-            invalidSubCommandMessage(sender, label, args);
+        SubCommand command = aliasToCommandMap.get(args[0].toLowerCase(Locale.ENGLISH));
+        if (command == null) {
+            sendInvalidSubCommandMessage(sender, label, args);
             return null;
         }
-        boolean playerOnly = playerOnlyCommands.contains(commandName);
-        if (playerOnly && !(sender instanceof Player)) {
-            noConsoleMessage(sender, label, args);
+        if (command.playerOnly && !(sender instanceof Player)) {
+            sendPlayerOnlyMessage(sender, label, args);
             return null;
         }
-        if (!hasPermission(sender, commandName)) {
-            noPermissionMessage(sender, label, args);
+        if (!hasPermission(sender, command)) {
+            sendNoPermissionMessage(sender, label, args);
             return null;
         }
-        return commandName;
+        return command;
     }
 
-    protected boolean hasPermission(CommandSender sender, String commandName) {
-        String permission = permMap.get(commandName);
-        return (permission == null || sender.hasPermission(permission) || !(sender instanceof Player));
+    protected boolean hasPermission(CommandSender sender, SubCommand command) {
+        return (command.permission == null || sender.hasPermission(command.permission) || !(sender instanceof Player));
     }
 
-    protected String[] getArgs(String alias) {
-        return argsMap.get(aliasMap.get(alias));
+    protected boolean hasMainPermission(CommandSender sender) {
+        return (commandPermission == null || sender.hasPermission(commandPermission) || !(sender instanceof Player));
     }
-    private static final String[] EMPTY_STRING_ARRAY = {};
 
-    /**
-     * This returns an array that is the given array without the first value.
-     *
-     */
-    protected String[] getSubArray(String[] array) {
-        if (array.length > 1) {
-            String[] result = new String[array.length - 1];
-            System.arraycopy(array, 1, result, 0, array.length - 1);
-            List<String> list = Arrays.asList(array).subList(1, array.length);
-            return list.toArray(new String[list.size()]);
-        } else {
-            return EMPTY_STRING_ARRAY;
+    void addAlias(SubCommand subCommand, String alias) {
+        if (!subCommands.contains(subCommand)) {
+            throw new IllegalArgumentException("SubCommand not part of this CommandExectorBase! Add it first!");
         }
+        aliasToCommandMap.put(alias, subCommand);
     }
 
-    protected void runHelpCommand(CommandSender sender, Command mainCommand, String mainCommandLabel) {
-        sender.sendMessage(ColorList.MAIN + "List of possible subcommands:");
-        for (String str : aliasMap.keySet()) {
-            if (str.equals(aliasMap.get(str))) {
-                if (hasPermission(sender, str)) {
-                    sender.sendMessage(getMultipleAliasHelpMessage(str, mainCommandLabel));
-                }
-            }
-        }
-    }
-
-    protected String getHelpMessage(String alias, String baseCommand) {
-        String subCmd = aliasMap.get(alias);
+    String getHelpMessage(SubCommand subCommand, String baseCommandLabel) {
         StringBuilder resultBuilder = new StringBuilder();
-        appendArgsString(subCmd, resultBuilder.append(ColorList.CMD).append("/").append(baseCommand).append(ColorList.SUBCMD).append(" ").append(alias).append(" ")).append(ColorList.HELP).append(helpList.get(subCmd));
+        resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
+        resultBuilder.append(ColorList.SUBCMD).append(subCommand.command);
+        for (String alias : subCommand.aliasesUnmodifiable) {
+            resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
+        }
+        if (!subCommand.argumentNamesUnmodifiable.isEmpty()) {
+            resultBuilder.append(ColorList.ARGS_SURROUNDER);
+            for (String argument : subCommand.argumentNamesUnmodifiable) {
+                resultBuilder.append("<").append(ColorList.ARGS).append(argument).append(ColorList.ARGS_SURROUNDER).append("> ");
+            }
+        }
+        resultBuilder.append(ColorList.HELP).append(subCommand.helpMessage);
         return resultBuilder.toString();
     }
 
-    protected String getMultipleAliasHelpMessage(String alias, String baseCommand) {
-        StringBuilder resultStringBuilder = new StringBuilder(ColorList.CMD);
-        String subcmd = aliasMap.get(alias);
-        String[] aliasList = helpAliasMap.get(subcmd);
-        resultStringBuilder.append("/").append(baseCommand).append(ColorList.SUBCMD).append(" ").append(subcmd);
-        if (aliasList != null) {
-            for (String str : aliasList) {
-                resultStringBuilder.append(ColorList.DIVIDER).append("/").append(ColorList.SUBCMD).append(str);
+    String getHelpMessage(SubCommand subCommand, String subCommandLabel, String baseCommandLabel) {
+        if (!subCommand.aliasesUnmodifiable.contains(subCommandLabel)) {
+            throw new IllegalArgumentException("given alias doesn't belong to subCommand");
+        }
+        StringBuilder resultBuilder = new StringBuilder();
+        resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
+        resultBuilder.append(ColorList.SUBCMD).append(subCommand.command);
+        for (String alias : subCommand.aliasesUnmodifiable) {
+            resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
+        }
+        if (!subCommand.argumentNamesUnmodifiable.isEmpty()) {
+            resultBuilder.append(ColorList.ARGS_SURROUNDER);
+            for (String argument : subCommand.argumentNamesUnmodifiable) {
+                resultBuilder.append("<").append(ColorList.ARGS).append(argument).append(ColorList.ARGS_SURROUNDER).append("> ");
             }
         }
-        appendArgsString(subcmd, resultStringBuilder.append(" ")).append(ColorList.HELP).append(helpList.get(subcmd));
-        return resultStringBuilder.toString();
-    }
-
-    protected String getArgsString(String cmd) {
-        String[] args = argsMap.get(cmd);
-        if (args == null) {
-            return "";
-        }
-        StringBuilder resultBuilder = new StringBuilder(ColorList.ARGS_SURROUNDER);
-        for (String arg : args) {
-            resultBuilder.append("<").append(ColorList.ARGS).append(arg).append(ColorList.ARGS_SURROUNDER).append("> ");
-        }
+        resultBuilder.append(ColorList.HELP).append(subCommand.helpMessage);
         return resultBuilder.toString();
-    }
-
-    /**
-     * @return The original StringBuilder.
-     */
-    protected StringBuilder appendArgsString(String cmd, StringBuilder builder) {
-        String[] args = argsMap.get(cmd);
-        if (args == null) {
-            return builder;
-        }
-        builder.append(ColorList.ARGS_SURROUNDER);
-        for (String arg : args) {
-            builder.append("<").append(ColorList.ARGS).append(arg).append(ColorList.ARGS_SURROUNDER).append("> ");
-        }
-        return builder;
-    }
-
-    @Override
-    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        ArrayList<String> returnList = new ArrayList<String>();
-        if (args.length == 0) {
-            for (String alias : aliasMap.keySet()) {
-                returnList.add(alias);
-            }
-        } else if (args.length == 1) {
-            for (String alias : aliasMap.keySet()) {
-                if (alias.startsWith(args[0])) {
-                    if (hasPermission(sender, aliasMap.get(alias))) {
-                        returnList.add(alias);
-                    }
-                }
-            }
-        }
-//            else if (aliasMap.containsKey(args[1])) {
-//            }
-        return returnList;
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        String commandName = isCommandValid(sender, cmd, label, args);
-        if (commandName != null) {
-            reactorMap.get(commandName).runCommand(sender, cmd, label, commandName, args[0], getSubArray(args), commandExecutorBridge);
-        }
-        return true;
-    }
-
-    protected abstract String getCommandName();
-
-    protected abstract String getMainCmdPermission();
-
-    public static interface CommandReactor {
-
-        public void runCommand(final CommandSender sender, final Command mainCommand, final String mainCommandLabel, final String subCommand, final String subCommandLabel, final String[] subCommandArgs, final CommandExecutorBridge executorBridge);
-    }
-
-    public static class CommandExecutorBridge {
-
-        private final CommandExecutorBase commandExecutorBase;
-
-        private CommandExecutorBridge(final CommandExecutorBase commandExecutorBase) {
-            this.commandExecutorBase = commandExecutorBase;
-        }
-
-        public String[] getArgs(String alias) {
-            return commandExecutorBase.getArgs(alias);
-        }
-
-        public StringBuilder appendArgsString(String cmd, StringBuilder builder) {
-            return commandExecutorBase.appendArgsString(cmd, builder);
-        }
-
-        public String getArgsString(String cmd) {
-            return commandExecutorBase.getArgsString(cmd);
-        }
-
-        public String getHelpMessage(String alias, String baseCommand) {
-            return commandExecutorBase.getHelpMessage(alias, baseCommand);
-        }
-
-        public String getMultipleAliasHelpMessage(String alias, String baseCommand) {
-            return commandExecutorBase.getMultipleAliasHelpMessage(alias, baseCommand);
-        }
     }
 }
