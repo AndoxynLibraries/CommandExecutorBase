@@ -3,9 +3,11 @@ package net.daboross.bukkitdev.commandexecutorbase;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -18,7 +20,7 @@ import org.bukkit.entity.Player;
 public abstract class CommandExecutorBase implements TabExecutor {
 
     private final Map<String, String> aliasMap = new HashMap<String, String>();
-    private final Map<String, Boolean> isConsoleMap = new HashMap<String, Boolean>();
+    private final Set<String> playerOnlyCommands = new HashSet<String>();
     private final Map<String, String> helpList = new HashMap<String, String>();
     private final Map<String, String[]> helpAliasMap = new HashMap<String, String[]>();
     private final Map<String, String[]> argsMap = new HashMap<String, String[]>();
@@ -36,10 +38,14 @@ public abstract class CommandExecutorBase implements TabExecutor {
     protected void initCommand(String cmd, String[] aliases, boolean isConsole, String permission, String[] arguments, String helpString, CommandReactor commandReactor) {
         if (cmd == null) {
             throw new IllegalArgumentException("Null cmd argument passed to initCommand()");
+        } else if (commandReactor == null) {
+            throw new IllegalArgumentException("Null commandreactor argument passed to initCommand()");
         }
         String lowerCaseCmd = cmd.toLowerCase(Locale.ENGLISH);
         aliasMap.put(lowerCaseCmd, cmd.toLowerCase(Locale.ENGLISH));
-        isConsoleMap.put(lowerCaseCmd, isConsole);
+        if (!isConsole) {
+            playerOnlyCommands.add(lowerCaseCmd);
+        }
         if (permission != null) {
             permMap.put(lowerCaseCmd, permission.toLowerCase());
         }
@@ -71,13 +77,13 @@ public abstract class CommandExecutorBase implements TabExecutor {
     }
 
     private void invalidSubCommandMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.MAIN + "The SubCommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " Does not exist for the command " + ColorList.CMD + "/" + getCommandName());
-        sender.sendMessage(ColorList.MAIN + "To see all possible sub commands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
+        sender.sendMessage(ColorList.MAIN + "The subcommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " Does not exist for the command " + ColorList.CMD + "/" + label);
+        sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
     private void noSubCommandMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.MAIN + "This is a base command, Please Use a sub command after it.");
-        sender.sendMessage(ColorList.MAIN + "To see all possible sub commands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
+        sender.sendMessage(ColorList.MAIN + "This is a base command, please Use a subcommand after it.");
+        sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
     private void noPermissionMessage(CommandSender sender, String label, String[] args) {
@@ -106,6 +112,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
     protected String isCommandValid(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission(getMainCmdPermission())) {
             noPermissionMessage(sender, label, null);
+            return null;
         }
         if (args.length < 1) {
             noSubCommandMessage(sender, label, args);
@@ -118,8 +125,8 @@ public abstract class CommandExecutorBase implements TabExecutor {
             invalidSubCommandMessage(sender, label, args);
             return null;
         }
-        boolean isConsole = isConsoleMap.containsKey(commandName) ? isConsoleMap.get(commandName) : false;
-        if (!(isConsole || (sender instanceof Player))) {
+        boolean playerOnly = playerOnlyCommands.contains(commandName);
+        if (playerOnly && !(sender instanceof Player)) {
             noConsoleMessage(sender, label, args);
             return null;
         }
@@ -142,16 +149,19 @@ public abstract class CommandExecutorBase implements TabExecutor {
     protected String[] getArgs(String alias) {
         return argsMap.get(aliasMap.get(alias));
     }
+    private static final String[] EMPTY_STRING_ARRAY = {};
 
     /**
      * This returns an array that is the given array without the first value.
      */
     protected String[] getSubArray(String[] array) {
         if (array.length > 1) {
+            String[] result = new String[array.length - 1];
+            System.arraycopy(array, 0, result, 1, array.length - 1);
             List<String> list = Arrays.asList(array).subList(1, array.length);
             return list.toArray(new String[list.size()]);
         } else {
-            return new String[0];
+            return EMPTY_STRING_ARRAY;
         }
     }
 
@@ -200,7 +210,7 @@ public abstract class CommandExecutorBase implements TabExecutor {
     }
 
     /**
-     * @return The original StringBuildger.
+     * @return The original StringBuilder.
      */
     protected StringBuilder appendArgsString(String cmd, StringBuilder builder) {
         String[] args = argsMap.get(cmd);
@@ -217,42 +227,31 @@ public abstract class CommandExecutorBase implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         ArrayList<String> returnList = new ArrayList<String>();
-        if (cmd.getName().equalsIgnoreCase(getCommandName())) {
-            if (args.length == 0) {
-                for (String alias : aliasMap.keySet()) {
-                    returnList.add(alias);
-                }
-            } else if (args.length == 1) {
-                for (String alias : aliasMap.keySet()) {
-                    if (alias.startsWith(args[0])) {
-                        if (hasPermission(sender, aliasMap.get(alias))) {
-                            returnList.add(alias);
-                        }
+        if (args.length == 0) {
+            for (String alias : aliasMap.keySet()) {
+                returnList.add(alias);
+            }
+        } else if (args.length == 1) {
+            for (String alias : aliasMap.keySet()) {
+                if (alias.startsWith(args[0])) {
+                    if (hasPermission(sender, aliasMap.get(alias))) {
+                        returnList.add(alias);
                     }
                 }
-            } else if (aliasMap.containsKey(args[1])) {
-//                returnList.addAll(Arrays.asList(getArgs(args[1])));
             }
         }
+//            else if (aliasMap.containsKey(args[1])) {
+//            }
         return returnList;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase(getCommandName())) {
-            String commandName = isCommandValid(sender, cmd, label, args);
-            if (commandName == null) {
-                return true;
-            }
-            CommandReactor commandReactor = reactorMap.get(commandName);
-            if (commandReactor != null) {
-                commandReactor.runCommand(sender, cmd, label, commandName, args[0], getSubArray(args), commandExecutorBridge);
-            } else {
-                sender.sendMessage(ColorList.ERROR + "Teh command you tried to run has a null reactor! Duh.");
-            }
-            return true;
+        String commandName = isCommandValid(sender, cmd, label, args);
+        if (commandName != null) {
+            reactorMap.get(commandName).runCommand(sender, cmd, label, commandName, args[0], getSubArray(args), commandExecutorBridge);
         }
-        return false;
+        return true;
     }
 
     protected abstract String getCommandName();
