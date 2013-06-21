@@ -20,13 +20,12 @@ public class CommandExecutorBase implements TabExecutor {
 
     private final Map<String, SubCommand> aliasToCommandMap = new HashMap<String, SubCommand>();
     private final Set<SubCommand> subCommands = new HashSet<SubCommand>();
-    private final CommandExecutorBridge commandExecutorBridge = new CommandExecutorBridge(this);
     private final String commandPermission;
 
     public CommandExecutorBase(String commandPermission) {
         this.commandPermission = commandPermission;
         addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new SubCommandHandler() {
-            public void runCommand(CommandSender sender, Command mainCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs, CommandExecutorBridge executorBridge) {
+            public void runCommand(CommandSender sender, Command mainCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
                 sender.sendMessage(ColorList.TOP_OF_LIST_SEPERATOR + " -- " + ColorList.TOP_OF_LIST + "Command Help" + ColorList.TOP_OF_LIST_SEPERATOR + " --");
                 for (SubCommand subCommandVar : subCommands) {
                     if (hasPermission(sender, subCommandVar)) {
@@ -42,7 +41,7 @@ public class CommandExecutorBase implements TabExecutor {
             throw new IllegalArgumentException("Null subCommand");
         }
         subCommands.add(subCommand);
-        aliasToCommandMap.put(subCommand.command, subCommand);
+        aliasToCommandMap.put(subCommand.commandName, subCommand);
         for (String alias : subCommand.aliasesUnmodifiable) {
             aliasToCommandMap.put(alias, subCommand);
         }
@@ -54,7 +53,7 @@ public class CommandExecutorBase implements TabExecutor {
         SubCommand subCommand = getAndCheckCommand(sender, cmd, label, args);
         if (subCommand != null) {
             String[] subArgs = ArrayHelpers.getSubArray(args, 1, args.length - 1);
-            subCommand.commandHandler.runCommand(sender, cmd, label, subCommand, args[0], subArgs, commandExecutorBridge);
+            subCommand.commandHandler.runCommand(sender, cmd, label, subCommand, args[0], subArgs);
         }
         return true;
     }
@@ -144,10 +143,10 @@ public class CommandExecutorBase implements TabExecutor {
         aliasToCommandMap.put(alias, subCommand);
     }
 
-    String getHelpMessage(SubCommand subCommand, String baseCommandLabel) {
+    static String getHelpMessage(SubCommand subCommand, String baseCommandLabel) {
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
-        resultBuilder.append(ColorList.SUBCMD).append(subCommand.command);
+        resultBuilder.append(ColorList.SUBCMD).append(subCommand.commandName);
         for (String alias : subCommand.aliasesUnmodifiable) {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }
@@ -161,13 +160,13 @@ public class CommandExecutorBase implements TabExecutor {
         return resultBuilder.toString();
     }
 
-    String getHelpMessage(SubCommand subCommand, String subCommandLabel, String baseCommandLabel) {
+    static String getHelpMessage(SubCommand subCommand, String baseCommandLabel, String subCommandLabel) {
         if (!subCommand.aliasesUnmodifiable.contains(subCommandLabel)) {
             throw new IllegalArgumentException("given alias doesn't belong to subCommand");
         }
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
-        resultBuilder.append(ColorList.SUBCMD).append(subCommand.command);
+        resultBuilder.append(ColorList.SUBCMD).append(subCommand.commandName);
         for (String alias : subCommand.aliasesUnmodifiable) {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }

@@ -14,5 +14,5 @@ import org.bukkit.command.CommandSender;
  */
 public interface SubCommandHandler {
 
-    public void runCommand(final CommandSender sender, final Command mainCommand, final String baseCommandLabel, final SubCommand subCommand, final String subCommandLabel, final String[] subCommandArgs, final CommandExecutorBridge commandExecutorBridge);
+    public void runCommand(final CommandSender sender, final Command mainCommand, final String baseCommandLabel, final SubCommand subCommand, final String subCommandLabel, final String[] subCommandArgs);
 }
