@@ -25,7 +25,7 @@ public class CommandExecutorBase implements TabExecutor {
     public CommandExecutorBase(String commandPermission) {
         this.commandPermission = commandPermission;
         addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new SubCommandHandler() {
-            public void runCommand(CommandSender sender, Command mainCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
+            public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
                 sender.sendMessage(ColorList.TOP_OF_LIST_SEPERATOR + " -- " + ColorList.TOP_OF_LIST + "Command Help" + ColorList.TOP_OF_LIST_SEPERATOR + " --");
                 for (SubCommand subCommandVar : subCommands) {
                     if (hasPermission(sender, subCommandVar)) {
