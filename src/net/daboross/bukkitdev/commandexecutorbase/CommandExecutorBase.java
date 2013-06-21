@@ -103,8 +103,8 @@ public abstract class CommandExecutorBase implements TabExecutor {
     }
 
     /**
-     * This will check if the command given is a valid subcommand and the
-     * sender can run this subcommand.
+     * This will check if the command given is a valid subcommand and the sender
+     * can run this subcommand.
      */
     protected String isCommandValid(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission(getMainCmdPermission())) {
@@ -146,11 +146,12 @@ public abstract class CommandExecutorBase implements TabExecutor {
 
     /**
      * This returns an array that is the given array without the first value.
+     *
      */
     protected String[] getSubArray(String[] array) {
         if (array.length > 1) {
             String[] result = new String[array.length - 1];
-            System.arraycopy(array, 0, result, 1, array.length - 1);
+            System.arraycopy(array, 1, result, 0, array.length - 1);
             List<String> list = Arrays.asList(array).subList(1, array.length);
             return list.toArray(new String[list.size()]);
         } else {
