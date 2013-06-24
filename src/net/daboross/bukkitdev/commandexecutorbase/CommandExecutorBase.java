@@ -26,7 +26,7 @@ public class CommandExecutorBase implements TabExecutor {
         this.commandPermission = commandPermission;
         addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new SubCommandHandler() {
             public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
-                sender.sendMessage(ColorList.TOP_OF_LIST_SEPERATOR + " -- " + ColorList.TOP_OF_LIST + "Command Help" + ColorList.TOP_OF_LIST_SEPERATOR + " --");
+                sender.sendMessage(ColorList.TOP_SEPERATOR + " -- " + ColorList.TOP + "Command Help" + ColorList.TOP_SEPERATOR + " --");
                 for (SubCommand subCommandVar : subCommands) {
                     if (hasPermission(sender, subCommandVar)) {
                         sender.sendMessage(getHelpMessage(subCommandVar, baseCommandLabel));
@@ -38,7 +38,7 @@ public class CommandExecutorBase implements TabExecutor {
 
     public final void addSubCommand(SubCommand subCommand) {
         if (subCommand == null) {
-            throw new IllegalArgumentException("Null subCommand");
+            throw new IllegalArgumentException("Null SubCommand");
         }
         subCommands.add(subCommand);
         aliasToCommandMap.put(subCommand.commandName, subCommand);
@@ -60,47 +60,55 @@ public class CommandExecutorBase implements TabExecutor {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        ArrayList<String> returnList = new ArrayList<String>();
-        if (args.length == 0) {
+        if (args.length == 0 || args[0].isEmpty()) {
+            ArrayList<String> resultList = new ArrayList<String>();
             for (String alias : aliasToCommandMap.keySet()) {
-                returnList.add(alias);
+                resultList.add(alias);
             }
+            return resultList;
         } else if (args.length == 1) {
+            ArrayList<String> resultList = new ArrayList<String>();
             for (String alias : aliasToCommandMap.keySet()) {
                 if (alias.startsWith(args[0].toLowerCase(Locale.ENGLISH))) {
                     if (hasPermission(sender, aliasToCommandMap.get(alias))) {
-                        returnList.add(alias);
+                        resultList.add(alias);
                     }
                 }
             }
+            return resultList;
         } else {
             SubCommand subCommand = aliasToCommandMap.get(args[1].toLowerCase(Locale.ENGLISH));
-            if (subCommand != null) {
+            if (subCommand == null) {
+                return ArrayHelpers.singleStringList("INVALID_SUB_COMMAND");
+            } else if (subCommand.getArgumentHandler() != null) {
+                final List<String> resultList = subCommand.getArgumentHandler().tabComplete(sender, cmd, label, subCommand, args[0], ArrayHelpers.getSubArray(args, 1, args.length - 1));
+                return resultList == null ? new ArrayList() : resultList;
+            } else {
+                return null;
             }
         }
-        return returnList;
     }
 
     private void sendInvalidSubCommandMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.MAIN + "The subcommand: " + ColorList.CMD + args[0] + ColorList.MAIN + " does not exist for the command " + ColorList.CMD + "/" + label);
-        sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
+        sender.sendMessage(ColorList.REG + "The subcommand  '" + ColorList.CMD + args[0] + ColorList.REG + "' does not exist for the command '" + ColorList.CMD + "/" + label + ColorList.REG + "'");
+        sender.sendMessage(ColorList.REG + "To see all possible subcommands type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
     private void sendNoSubCommandMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.MAIN + "This is a base command, please use a subcommand after it.");
-        sender.sendMessage(ColorList.MAIN + "To see all possible subcommands, type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
+        sender.sendMessage(ColorList.REG + "This is a base command, please use a subcommand after it.");
+        sender.sendMessage(ColorList.REG + "To see all possible subcommands type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
     private void sendNoPermissionMessage(CommandSender sender, String label, String[] args) {
         if (args == null || args.length < 1) {
-            sender.sendMessage(ColorList.NOPERM + "You don't have permission to run " + ColorList.CMD + "/" + label);
+            sender.sendMessage(ColorList.ERR + "You don't have permission to use " + ColorList.CMD + "/" + label);
         } else {
-            sender.sendMessage(ColorList.NOPERM + "You don't have permission to run " + ColorList.CMD + "/" + label + " " + ColorList.SUBCMD + args[0]);
+            sender.sendMessage(ColorList.ERR + "You don't have permission to use " + ColorList.CMD + "/" + label + " " + ColorList.SUBCMD + args[0]);
         }
     }
 
     private void sendPlayerOnlyMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.NOPERM + "The command " + ColorList.CMD + "/" + label + (args.length > 0 ? (ColorList.SUBCMD + args[0]) : "") + ColorList.NOPERM + " must be run by a player");
+        sender.sendMessage(ColorList.ERR + "The command " + ColorList.CMD + "/" + label + (args.length == 0 ? "" : (" " + ColorList.SUBCMD + args[0])) + ColorList.ERR + " must be run by a player");
     }
 
     protected SubCommand getAndCheckCommand(CommandSender sender, Command cmd, String label, String[] args) {
@@ -137,10 +145,11 @@ public class CommandExecutorBase implements TabExecutor {
     }
 
     void addAlias(SubCommand subCommand, String alias) {
-        if (!subCommands.contains(subCommand)) {
-            throw new IllegalArgumentException("SubCommand not part of this CommandExectorBase! Add it first!");
+        if (subCommands.contains(subCommand)) {
+            aliasToCommandMap.put(alias, subCommand);
+        } else {
+            throw new IllegalArgumentException("SubCommand not part of CommandExecutorBase");
         }
-        aliasToCommandMap.put(alias, subCommand);
     }
 
     static String getHelpMessage(SubCommand subCommand, String baseCommandLabel) {
@@ -150,6 +159,7 @@ public class CommandExecutorBase implements TabExecutor {
         for (String alias : subCommand.aliasesUnmodifiable) {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }
+        resultBuilder.append(" ");
         if (!subCommand.argumentNamesUnmodifiable.isEmpty()) {
             resultBuilder.append(ColorList.ARGS_SURROUNDER);
             for (String argument : subCommand.argumentNamesUnmodifiable) {
@@ -161,8 +171,8 @@ public class CommandExecutorBase implements TabExecutor {
     }
 
     static String getHelpMessage(SubCommand subCommand, String baseCommandLabel, String subCommandLabel) {
-        if (!subCommand.aliasesUnmodifiable.contains(subCommandLabel)) {
-            throw new IllegalArgumentException("given alias doesn't belong to subCommand");
+        if (!subCommand.aliasesUnmodifiable.contains(subCommandLabel.toLowerCase())) {
+            throw new IllegalArgumentException("Given alias doesn't belong to given SubCommand");
         }
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
@@ -170,6 +180,7 @@ public class CommandExecutorBase implements TabExecutor {
         for (String alias : subCommand.aliasesUnmodifiable) {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }
+        resultBuilder.append(" ");
         if (!subCommand.argumentNamesUnmodifiable.isEmpty()) {
             resultBuilder.append(ColorList.ARGS_SURROUNDER);
             for (String argument : subCommand.argumentNamesUnmodifiable) {

@@ -5,6 +5,7 @@
  */
 package net.daboross.bukkitdev.commandexecutorbase;
 
+import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -12,7 +13,7 @@ import org.bukkit.command.CommandSender;
  *
  * @author daboross
  */
-public interface SubCommandHandler {
+public interface ArgumentHandler {
 
     /**
      *
@@ -22,8 +23,10 @@ public interface SubCommandHandler {
      * @param subCommand the subcommand being called
      * @param subCommandLabel the label for the subcommand being used by the
      * sender
-     * @param subCommandArgs the arguments of the subcommand not including the
-     * subcommand.
+     * @param subCommandArgs the arguments so far including the one currently
+     * being typed not including the subcommand.
+     * @return a list of possible completes for the given argument (the last one
+     * in subCommandArgs)
      */
-    public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs);
+    public List<String> tabComplete(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs);
 }

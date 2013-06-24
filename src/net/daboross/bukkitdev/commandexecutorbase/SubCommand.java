@@ -18,16 +18,17 @@ import java.util.Set;
  */
 public class SubCommand {
 
+    private final Set<CommandExecutorBase> commandExecutorBasesUsingThis;
     final SubCommandHandler commandHandler;
     final String commandName;
     final boolean playerOnly;
     final String permission;
-    private final Set<String> aliases;
-    final Set<String> aliasesUnmodifiable;
+    private final List<String> aliases;
+    final List<String> aliasesUnmodifiable;
     final String helpMessage;
     private final List<String> argumentNames;
     final List<String> argumentNamesUnmodifiable;
-    private final Set<CommandExecutorBase> commandExecutorBasesUsingThis;
+    private ArgumentHandler argumentHandler;
 
     public SubCommand(final String commandName, final String[] aliases, final boolean canConsoleExecute, final String permission, final String[] argumentNames, String helpMessage, SubCommandHandler subCommandHandler) {
         if (commandName == null) {
@@ -36,15 +37,16 @@ public class SubCommand {
             throw new IllegalArgumentException("Null subCommandHandler argument");
         }
         this.commandName = commandName.toLowerCase(Locale.ENGLISH);
-        this.aliases = aliases == null ? new HashSet<String>() : ArrayHelpers.copyToSet(aliases);
-        this.aliasesUnmodifiable = Collections.unmodifiableSet(this.aliases);
+        this.aliases = aliases == null ? new ArrayList<String>() : ArrayHelpers.copyToListLowercase(aliases);
+        this.aliasesUnmodifiable = Collections.unmodifiableList(this.aliases);
         this.playerOnly = !canConsoleExecute;
         this.permission = permission;
-        this.helpMessage = (helpMessage == null ? "Null help message" : helpMessage);
+        this.helpMessage = (helpMessage == null ? "" : helpMessage);
         this.argumentNames = argumentNames == null ? new ArrayList<String>() : ArrayHelpers.copyToList(argumentNames);
         this.argumentNamesUnmodifiable = Collections.unmodifiableList(this.argumentNames);
         this.commandHandler = subCommandHandler;
         this.commandExecutorBasesUsingThis = new HashSet<CommandExecutorBase>();
+        this.argumentHandler = null;
     }
 
     public SubCommand(String cmd, String[] aliases, boolean isConsole, String permission, String helpString, SubCommandHandler commandHandler) {
@@ -66,6 +68,10 @@ public class SubCommand {
         }
     }
 
+    public void setArgumentHandler(ArgumentHandler argumentHandler) {
+        this.argumentHandler = argumentHandler;
+    }
+
     public String getName() {
         return commandName;
     }
@@ -80,5 +86,9 @@ public class SubCommand {
 
     void usingCommand(CommandExecutorBase commandExecutorBase) {
         commandExecutorBasesUsingThis.add(commandExecutorBase);
+    }
+
+    ArgumentHandler getArgumentHandler() {
+        return argumentHandler;
     }
 }
