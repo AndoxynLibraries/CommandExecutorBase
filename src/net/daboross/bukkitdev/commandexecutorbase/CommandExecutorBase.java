@@ -171,8 +171,8 @@ public class CommandExecutorBase implements TabExecutor {
     }
 
     static String getHelpMessage(SubCommand subCommand, String baseCommandLabel, String subCommandLabel) {
-        if (!subCommand.aliasesUnmodifiable.contains(subCommandLabel.toLowerCase())) {
-            throw new IllegalArgumentException("Given alias doesn't belong to given SubCommand");
+        if (!(subCommand.aliasesUnmodifiable.contains(subCommandLabel.toLowerCase()) || subCommandLabel.equalsIgnoreCase(subCommand.getName()))) {
+            throw new IllegalArgumentException("Given alias '" + subCommandLabel + "' doesn't belong to given SubCommand '" + subCommand.getName() + "'");
         }
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
