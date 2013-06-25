@@ -81,7 +81,7 @@ public class SubCommand {
     }
 
     public String getHelpMessage(String baseCommandLabel, String subCommandLabel) {
-        return CommandExecutorBase.getHelpMessage(this, subCommandLabel, baseCommandLabel);
+        return CommandExecutorBase.getHelpMessage(this, baseCommandLabel, subCommandLabel);
     }
 
     void usingCommand(CommandExecutorBase commandExecutorBase) {
