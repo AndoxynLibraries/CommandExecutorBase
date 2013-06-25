@@ -2,11 +2,9 @@ package net.daboross.bukkitdev.commandexecutorbase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -19,7 +17,7 @@ import org.bukkit.entity.Player;
 public class CommandExecutorBase implements TabExecutor {
 
     private final Map<String, SubCommand> aliasToCommandMap = new HashMap<String, SubCommand>();
-    private final Set<SubCommand> subCommands = new HashSet<SubCommand>();
+    private final List<SubCommand> subCommands = new ArrayList<SubCommand>();
     private final String commandPermission;
 
     public CommandExecutorBase(String commandPermission) {
