@@ -23,6 +23,7 @@ public class CommandExecutorBase implements TabExecutor {
     public CommandExecutorBase(String commandPermission) {
         this.commandPermission = commandPermission;
         addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new SubCommandHandler() {
+            @Override
             public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
                 sender.sendMessage(ColorList.TOP_SEPERATOR + " -- " + ColorList.TOP + "Command Help" + ColorList.TOP_SEPERATOR + " --");
                 for (SubCommand subCommandVar : subCommands) {
@@ -75,7 +76,7 @@ public class CommandExecutorBase implements TabExecutor {
             }
             return resultList;
         } else {
-            SubCommand subCommand = aliasToCommandMap.get(args[1].toLowerCase(Locale.ENGLISH));
+            SubCommand subCommand = aliasToCommandMap.get(args[0].toLowerCase(Locale.ENGLISH));
             if (subCommand == null) {
                 return ArrayHelpers.singleStringList("INVALID_SUB_COMMAND");
             } else if (subCommand.getArgumentHandler() != null) {
