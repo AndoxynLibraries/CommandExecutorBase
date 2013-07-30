@@ -58,16 +58,16 @@ public abstract class SubCommand {
         this.argumentHandler = null;
     }
 
-    public SubCommand(String cmd, String[] aliases, boolean isConsole, String permission, String helpString) {
-        this(cmd, aliases, isConsole, permission, null, helpString);
+    public SubCommand(String cmd, String[] aliases, boolean canConsoleExecute, String permission, String helpString) {
+        this(cmd, aliases, canConsoleExecute, permission, null, helpString);
     }
 
-    public SubCommand(String cmd, boolean isConsole, String permission, String[] arguments, String helpString) {
-        this(cmd, null, isConsole, permission, arguments, helpString);
+    public SubCommand(String cmd, boolean canConsoleExecute, String permission, String[] arguments, String helpString) {
+        this(cmd, null, canConsoleExecute, permission, arguments, helpString);
     }
 
-    public SubCommand(String cmd, boolean isConsole, String permission, String helpString) {
-        this(cmd, null, isConsole, permission, null, helpString);
+    public SubCommand(String cmd, boolean canConsoleExecute, String permission, String helpString) {
+        this(cmd, null, canConsoleExecute, permission, null, helpString);
     }
 
     public void addAlias(String alias) {
