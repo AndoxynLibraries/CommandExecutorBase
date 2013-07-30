@@ -22,15 +22,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 
 /**
  *
  * @author daboross
  */
-public class SubCommand {
+public abstract class SubCommand {
 
     private final Set<CommandExecutorBase> commandExecutorBasesUsingThis;
-    final SubCommandHandler commandHandler;
     final String commandName;
     final boolean playerOnly;
     final String permission;
@@ -41,11 +42,9 @@ public class SubCommand {
     final List<String> argumentNamesUnmodifiable;
     private ArgumentHandler argumentHandler;
 
-    public SubCommand(final String commandName, final String[] aliases, final boolean canConsoleExecute, final String permission, final String[] argumentNames, String helpMessage, SubCommandHandler subCommandHandler) {
+    public SubCommand(final String commandName, final String[] aliases, final boolean canConsoleExecute, final String permission, final String[] argumentNames, String helpMessage) {
         if (commandName == null) {
             throw new IllegalArgumentException("Null commandName argument");
-        } else if (subCommandHandler == null) {
-            throw new IllegalArgumentException("Null subCommandHandler argument");
         }
         this.commandName = commandName.toLowerCase(Locale.ENGLISH);
         this.aliases = aliases == null ? new ArrayList<String>() : ArrayHelpers.copyToListLowercase(aliases);
@@ -55,21 +54,20 @@ public class SubCommand {
         this.helpMessage = (helpMessage == null ? "" : helpMessage);
         this.argumentNames = argumentNames == null ? new ArrayList<String>() : ArrayHelpers.copyToList(argumentNames);
         this.argumentNamesUnmodifiable = Collections.unmodifiableList(this.argumentNames);
-        this.commandHandler = subCommandHandler;
         this.commandExecutorBasesUsingThis = new HashSet<CommandExecutorBase>();
         this.argumentHandler = null;
     }
 
-    public SubCommand(String cmd, String[] aliases, boolean isConsole, String permission, String helpString, SubCommandHandler commandHandler) {
-        this(cmd, aliases, isConsole, permission, null, helpString, commandHandler);
+    public SubCommand(String cmd, String[] aliases, boolean isConsole, String permission, String helpString) {
+        this(cmd, aliases, isConsole, permission, null, helpString);
     }
 
-    public SubCommand(String cmd, boolean isConsole, String permission, String[] arguments, String helpString, SubCommandHandler commandHandler) {
-        this(cmd, null, isConsole, permission, arguments, helpString, commandHandler);
+    public SubCommand(String cmd, boolean isConsole, String permission, String[] arguments, String helpString) {
+        this(cmd, null, isConsole, permission, arguments, helpString);
     }
 
-    public SubCommand(String cmd, boolean isConsole, String permission, String helpString, SubCommandHandler commandHandler) {
-        this(cmd, null, isConsole, permission, null, helpString, commandHandler);
+    public SubCommand(String cmd, boolean isConsole, String permission, String helpString) {
+        this(cmd, null, isConsole, permission, null, helpString);
     }
 
     public void addAlias(String alias) {
@@ -102,4 +100,6 @@ public class SubCommand {
     ArgumentHandler getArgumentHandler() {
         return argumentHandler;
     }
+
+    public abstract void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs);
 }

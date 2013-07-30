@@ -38,9 +38,9 @@ public class CommandExecutorBase implements TabExecutor {
 
     public CommandExecutorBase(String commandPermission) {
         this.commandPermission = commandPermission;
-        addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This command views this page", new SubCommandHandler() {
+        addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This command views this page") {
             @Override
-            public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
+            public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs) {
                 sender.sendMessage(String.format(ColorList.TOP_FORMAT, "Help"));
                 for (SubCommand subCommandVar : subCommands) {
                     if (hasPermission(sender, subCommandVar)) {
@@ -48,7 +48,7 @@ public class CommandExecutorBase implements TabExecutor {
                     }
                 }
             }
-        }));
+        });
     }
 
     public final void addSubCommand(SubCommand subCommand) {
@@ -68,7 +68,7 @@ public class CommandExecutorBase implements TabExecutor {
         SubCommand subCommand = getAndCheckCommand(sender, cmd, label, args);
         if (subCommand != null) {
             String[] subArgs = ArrayHelpers.getSubArray(args, 1, args.length - 1);
-            subCommand.commandHandler.runCommand(sender, cmd, label, subCommand, args[0], subArgs);
+            subCommand.runCommand(sender, cmd, label, args[0], subArgs);
         }
         return true;
     }
