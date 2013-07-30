@@ -19,7 +19,6 @@ package net.daboross.bukkitdev.commandexecutorbase;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -38,17 +37,6 @@ public class CommandExecutorBase implements TabExecutor {
 
     public CommandExecutorBase(String commandPermission) {
         this.commandPermission = commandPermission;
-        addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This command views this page") {
-            @Override
-            public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs) {
-                sender.sendMessage(String.format(ColorList.TOP_FORMAT, "Help"));
-                for (SubCommand subCommandVar : subCommands) {
-                    if (hasPermission(sender, subCommandVar)) {
-                        sender.sendMessage(getHelpMessage(subCommandVar, baseCommandLabel));
-                    }
-                }
-            }
-        });
     }
 
     public final void addSubCommand(SubCommand subCommand) {
@@ -84,7 +72,7 @@ public class CommandExecutorBase implements TabExecutor {
         } else if (args.length == 1) {
             ArrayList<String> resultList = new ArrayList<String>();
             for (String alias : aliasToCommandMap.keySet()) {
-                if (alias.startsWith(args[0].toLowerCase(Locale.ENGLISH))) {
+                if (alias.startsWith(args[0].toLowerCase())) {
                     if (hasPermission(sender, aliasToCommandMap.get(alias))) {
                         resultList.add(alias);
                     }
@@ -92,7 +80,7 @@ public class CommandExecutorBase implements TabExecutor {
             }
             return resultList;
         } else {
-            SubCommand subCommand = aliasToCommandMap.get(args[0].toLowerCase(Locale.ENGLISH));
+            SubCommand subCommand = aliasToCommandMap.get(args[0].toLowerCase());
             if (subCommand == null) {
                 return ArrayHelpers.singleStringList("INVALID_SUB_COMMAND");
             } else if (subCommand.getArgumentHandler() != null) {
@@ -109,9 +97,13 @@ public class CommandExecutorBase implements TabExecutor {
         sender.sendMessage(ColorList.REG + "To see all possible subcommands type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
-    private void sendNoSubCommandMessage(CommandSender sender, String label) {
-        sender.sendMessage(ColorList.REG + "This is a base command, please use a subcommand after it.");
-        sender.sendMessage(ColorList.REG + "To see all possible subcommands type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
+    private void sendHelpMessage(CommandSender sender, String baseCommandLabel) {
+        sender.sendMessage(String.format(ColorList.TOP_FORMAT, "Help"));
+        for (SubCommand subCommandVar : subCommands) {
+            if (hasPermission(sender, subCommandVar)) {
+                sender.sendMessage(getHelpMessage(subCommandVar, baseCommandLabel));
+            }
+        }
     }
 
     private void sendNoPermissionMessage(CommandSender sender, String label, String[] args) {
@@ -132,10 +124,10 @@ public class CommandExecutorBase implements TabExecutor {
             return null;
         }
         if (args.length < 1) {
-            sendNoSubCommandMessage(sender, label);
+            sendHelpMessage(sender, label);
             return null;
         }
-        SubCommand command = aliasToCommandMap.get(args[0].toLowerCase(Locale.ENGLISH));
+        SubCommand command = aliasToCommandMap.get(args[0].toLowerCase());
         if (command == null) {
             sendInvalidSubCommandMessage(sender, label, args);
             return null;
