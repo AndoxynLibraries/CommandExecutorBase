@@ -38,10 +38,10 @@ public class CommandExecutorBase implements TabExecutor {
 
     public CommandExecutorBase(String commandPermission) {
         this.commandPermission = commandPermission;
-        addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This Command Views This Page", new SubCommandHandler() {
+        addSubCommand(new SubCommand("help", new String[]{"?"}, true, null, "This command views this page", new SubCommandHandler() {
             @Override
             public void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
-                sender.sendMessage(ColorList.TOP_SEPERATOR + " -- " + ColorList.TOP + "Command Help" + ColorList.TOP_SEPERATOR + " --");
+                sender.sendMessage(String.format(ColorList.TOP_FORMAT, "Help"));
                 for (SubCommand subCommandVar : subCommands) {
                     if (hasPermission(sender, subCommandVar)) {
                         sender.sendMessage(getHelpMessage(subCommandVar, baseCommandLabel));
@@ -109,7 +109,7 @@ public class CommandExecutorBase implements TabExecutor {
         sender.sendMessage(ColorList.REG + "To see all possible subcommands type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
 
-    private void sendNoSubCommandMessage(CommandSender sender, String label, String[] args) {
+    private void sendNoSubCommandMessage(CommandSender sender, String label) {
         sender.sendMessage(ColorList.REG + "This is a base command, please use a subcommand after it.");
         sender.sendMessage(ColorList.REG + "To see all possible subcommands type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
     }
@@ -132,7 +132,7 @@ public class CommandExecutorBase implements TabExecutor {
             return null;
         }
         if (args.length < 1) {
-            sendNoSubCommandMessage(sender, label, args);
+            sendNoSubCommandMessage(sender, label);
             return null;
         }
         SubCommand command = aliasToCommandMap.get(args[0].toLowerCase(Locale.ENGLISH));

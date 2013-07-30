@@ -104,4 +104,9 @@ public final class ColorList {
      * as an argument.
      */
     public static final String BROADCAST_NAME_FORMAT = ChatColor.DARK_GRAY + "[" + ChatColor.RED + "%s" + ChatColor.DARK_GRAY + "] " + ChatColor.GRAY;
+    /**
+     * Format for the top part of a long bit of information. First %s is the
+     * name of this part of stuff.
+     */
+    public static final String TOP_FORMAT = TOP_SEPERATOR + " -- " + TOP + "%s" + TOP_SEPERATOR + " --";
 }
