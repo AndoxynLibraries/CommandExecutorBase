@@ -44,7 +44,7 @@ public final class ColorList {
      * This is the color for player usernames.
      * <br>In 'john did this', 'john' would be this color.
      */
-    public static final String NAME = ChatColor.GREEN.toString();
+    public static final String NAME = ChatColor.DARK_GREEN.toString();
     /**
      * This is the color for general data information (times, dates, counts).
      * <br>'50 minutes ago' would be this color.
