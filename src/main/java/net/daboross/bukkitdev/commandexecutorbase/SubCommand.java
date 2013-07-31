@@ -17,6 +17,7 @@
 package net.daboross.bukkitdev.commandexecutorbase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -40,45 +41,57 @@ public abstract class SubCommand {
     final String helpMessage;
     private final List<String> argumentNames;
     final List<String> argumentNamesUnmodifiable;
-    private ArgumentHandler argumentHandler;
 
-    public SubCommand(final String commandName, final String[] aliases, final boolean canConsoleExecute, final String permission, final String[] argumentNames, String helpMessage) {
+    public SubCommand(final String commandName, final boolean canConsoleExecute, final String permission, String helpMessage) {
         if (commandName == null) {
             throw new IllegalArgumentException("Null commandName argument");
         }
         this.commandName = commandName.toLowerCase(Locale.ENGLISH);
-        this.aliases = aliases == null ? new ArrayList<String>() : ArrayHelpers.copyToListLowercase(aliases);
+        this.aliases = new ArrayList<String>();
         this.aliasesUnmodifiable = Collections.unmodifiableList(this.aliases);
         this.playerOnly = !canConsoleExecute;
         this.permission = permission;
         this.helpMessage = (helpMessage == null ? "" : helpMessage);
-        this.argumentNames = argumentNames == null ? new ArrayList<String>() : ArrayHelpers.copyToList(argumentNames);
+        this.argumentNames = new ArrayList<String>();
         this.argumentNamesUnmodifiable = Collections.unmodifiableList(this.argumentNames);
         this.commandExecutorBasesUsingThis = new HashSet<CommandExecutorBase>();
-        this.argumentHandler = null;
     }
 
-    public SubCommand(String cmd, String[] aliases, boolean canConsoleExecute, String permission, String helpString) {
-        this(cmd, aliases, canConsoleExecute, permission, null, helpString);
-    }
-
-    public SubCommand(String cmd, boolean canConsoleExecute, String permission, String[] arguments, String helpString) {
-        this(cmd, null, canConsoleExecute, permission, arguments, helpString);
-    }
-
-    public SubCommand(String cmd, boolean canConsoleExecute, String permission, String helpString) {
-        this(cmd, null, canConsoleExecute, permission, null, helpString);
-    }
-
-    public void addAlias(String alias) {
+    /**
+     *
+     * @param alias
+     * @return this, for chaining.
+     */
+    public SubCommand addAlias(String alias) {
         this.aliases.add(alias);
         for (CommandExecutorBase commandExecutorBase : commandExecutorBasesUsingThis) {
             commandExecutorBase.addAlias(this, alias);
         }
+        return this;
     }
 
-    public void setArgumentHandler(ArgumentHandler argumentHandler) {
-        this.argumentHandler = argumentHandler;
+    /**
+     *
+     * @param aliases
+     * @return this, for chaining.
+     */
+    public SubCommand addAliases(String... aliases) {
+        List<String> aliasesList = Arrays.asList(aliases);
+        this.aliases.addAll(aliasesList);
+        for (CommandExecutorBase commandExecutorBase : commandExecutorBasesUsingThis) {
+            commandExecutorBase.addAliases(this, aliases);
+        }
+        return this;
+    }
+
+    /**
+     *
+     * @param argumentNames
+     * @return this, for chaining.
+     */
+    public SubCommand addArgumentNames(String... argumentNames) {
+        this.argumentNames.addAll(Arrays.asList(argumentNames));
+        return this;
     }
 
     public String getName() {
@@ -97,9 +110,22 @@ public abstract class SubCommand {
         commandExecutorBasesUsingThis.add(commandExecutorBase);
     }
 
-    ArgumentHandler getArgumentHandler() {
-        return argumentHandler;
-    }
-
     public abstract void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs);
+
+    /**
+     *
+     * @param sender the sender initiating the command
+     * @param baseCommand the base command being called
+     * @param baseCommandLabel the label for the base command used by the sender
+     * @param subCommand the subcommand being called
+     * @param subCommandLabel the label for the subcommand being used by the
+     * sender
+     * @param subCommandArgs the arguments so far including the one currently
+     * being typed not including the subcommand.
+     * @return a list of possible completes for the given argument (the last one
+     * in subCommandArgs)
+     */
+    public List<String> tabComplete(CommandSender sender, Command baseCommand, String baseCommandLabel, SubCommand subCommand, String subCommandLabel, String[] subCommandArgs) {
+        return null;
+    }
 }

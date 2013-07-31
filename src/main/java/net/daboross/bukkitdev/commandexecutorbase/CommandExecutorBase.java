@@ -17,6 +17,7 @@
 package net.daboross.bukkitdev.commandexecutorbase;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,12 +83,9 @@ public class CommandExecutorBase implements TabExecutor {
         } else {
             SubCommand subCommand = aliasToCommandMap.get(args[0].toLowerCase());
             if (subCommand == null) {
-                return ArrayHelpers.singleStringList("INVALID_SUB_COMMAND");
-            } else if (subCommand.getArgumentHandler() != null) {
-                final List<String> resultList = subCommand.getArgumentHandler().tabComplete(sender, cmd, label, subCommand, args[0], ArrayHelpers.getSubArray(args, 1, args.length - 1));
-                return resultList == null ? new ArrayList() : resultList;
+                return Collections.EMPTY_LIST;
             } else {
-                return null;
+                return subCommand.tabComplete(sender, cmd, label, subCommand, args[0], ArrayHelpers.getSubArray(args, 1, args.length - 1));
             }
         }
     }
@@ -154,6 +152,16 @@ public class CommandExecutorBase implements TabExecutor {
     void addAlias(SubCommand subCommand, String alias) {
         if (subCommands.contains(subCommand)) {
             aliasToCommandMap.put(alias, subCommand);
+        } else {
+            throw new IllegalArgumentException("SubCommand not part of CommandExecutorBase");
+        }
+    }
+
+    void addAliases(SubCommand subCommand, String... aliases) {
+        if (subCommands.contains(subCommand)) {
+            for (String alias : aliases) {
+                aliasToCommandMap.put(alias, subCommand);
+            }
         } else {
             throw new IllegalArgumentException("SubCommand not part of CommandExecutorBase");
         }
