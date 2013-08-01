@@ -23,6 +23,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import net.daboross.bukkitdev.commandexecutorbase.filters.PermissionFilter;
+import net.daboross.bukkitdev.commandexecutorbase.filters.PlayerOnlyFilter;
+import net.daboross.bukkitdev.commandexecutorbase.conditions.PermissionCondition;
+import net.daboross.bukkitdev.commandexecutorbase.conditions.PlayerOnlyCondition;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -33,46 +37,35 @@ import org.bukkit.command.CommandSender;
 public abstract class SubCommand {
 
     private final Set<CommandExecutorBase> commandExecutorBasesUsingThis;
-    final String commandName;
-    final boolean playerOnly;
-    final String permission;
+    private final String commandName;
+    private String help;
+    private String permission;
     private final List<String> aliases;
-    final List<String> aliasesUnmodifiable;
-    final String helpMessage;
     private final List<String> argumentNames;
-    final List<String> argumentNamesUnmodifiable;
+    private final List<CommandFilter> commandFilters;
+    private final List<CommandHelpCondition> helpConditions;
 
-    public SubCommand(final String commandName, final boolean canConsoleExecute, final String permission, String helpMessage) {
+    public SubCommand(String commandName, boolean canConsoleExecute, String permission, String helpMessage) {
         if (commandName == null) {
             throw new IllegalArgumentException("Null commandName argument");
         }
         this.commandName = commandName.toLowerCase(Locale.ENGLISH);
-        this.aliases = new ArrayList<String>();
-        this.aliasesUnmodifiable = Collections.unmodifiableList(this.aliases);
-        this.playerOnly = !canConsoleExecute;
+        this.help = (helpMessage == null ? "" : helpMessage);
         this.permission = permission;
-        this.helpMessage = (helpMessage == null ? "" : helpMessage);
+        this.aliases = new ArrayList<String>();
         this.argumentNames = new ArrayList<String>();
-        this.argumentNamesUnmodifiable = Collections.unmodifiableList(this.argumentNames);
         this.commandExecutorBasesUsingThis = new HashSet<CommandExecutorBase>();
-    }
-
-    /**
-     *
-     * @param alias
-     * @return this, for chaining.
-     */
-    public SubCommand addAlias(String alias) {
-        this.aliases.add(alias);
-        for (CommandExecutorBase commandExecutorBase : commandExecutorBasesUsingThis) {
-            commandExecutorBase.addAlias(this, alias);
+        this.commandFilters = new ArrayList<CommandFilter>();
+        this.helpConditions = new ArrayList<CommandHelpCondition>();
+        this.helpConditions.add(new PermissionCondition());
+        this.commandFilters.add(new PermissionFilter());
+        if (!canConsoleExecute) {
+            this.helpConditions.add(new PlayerOnlyCondition());
+            this.commandFilters.add(new PlayerOnlyFilter());
         }
-        return this;
     }
 
     /**
-     *
-     * @param aliases
      * @return this, for chaining.
      */
     public SubCommand addAliases(String... aliases) {
@@ -85,8 +78,6 @@ public abstract class SubCommand {
     }
 
     /**
-     *
-     * @param argumentNames
      * @return this, for chaining.
      */
     public SubCommand addArgumentNames(String... argumentNames) {
@@ -94,8 +85,40 @@ public abstract class SubCommand {
         return this;
     }
 
+    /**
+     * @return this, for chaining.
+     */
+    public SubCommand setPermission(String permission) {
+        this.permission = permission;
+        return this;
+    }
+
     public String getName() {
         return commandName;
+    }
+
+    public String getHelpMessage() {
+        return help;
+    }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public List<String> getAliases() {
+        return Collections.unmodifiableList(aliases);
+    }
+
+    public List<String> getArgumentNames() {
+        return Collections.unmodifiableList(argumentNames);
+    }
+
+    public List<CommandFilter> getCommandFilters() {
+        return Collections.unmodifiableList(commandFilters);
+    }
+
+    public List<CommandHelpCondition> getHelpConditions() {
+        return Collections.unmodifiableList(helpConditions);
     }
 
     public String getHelpMessage(String baseCommandLabel) {

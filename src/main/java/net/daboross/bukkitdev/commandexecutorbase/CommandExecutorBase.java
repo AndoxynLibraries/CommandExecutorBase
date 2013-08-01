@@ -45,8 +45,8 @@ public class CommandExecutorBase implements TabExecutor {
             throw new IllegalArgumentException("Null SubCommand");
         }
         subCommands.add(subCommand);
-        aliasToCommandMap.put(subCommand.commandName, subCommand);
-        for (String alias : subCommand.aliasesUnmodifiable) {
+        aliasToCommandMap.put(subCommand.getName(), subCommand);
+        for (String alias : subCommand.getAliases()) {
             aliasToCommandMap.put(alias, subCommand);
         }
         subCommand.usingCommand(this);
@@ -54,7 +54,7 @@ public class CommandExecutorBase implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        SubCommand subCommand = getAndCheckCommand(sender, cmd, label, args);
+        SubCommand subCommand = getSubCommand(sender, cmd, label, args);
         if (subCommand != null) {
             String[] subArgs = ArrayHelpers.getSubArray(args, 1, args.length - 1);
             subCommand.runCommand(sender, cmd, label, args[0], subArgs);
@@ -74,7 +74,7 @@ public class CommandExecutorBase implements TabExecutor {
             ArrayList<String> resultList = new ArrayList<String>();
             for (String alias : aliasToCommandMap.keySet()) {
                 if (alias.startsWith(args[0].toLowerCase())) {
-                    if (hasPermission(sender, aliasToCommandMap.get(alias))) {
+                    if (hasHelpConditions(sender, aliasToCommandMap.get(alias))) {
                         resultList.add(alias);
                     }
                 }
@@ -98,27 +98,19 @@ public class CommandExecutorBase implements TabExecutor {
     private void sendHelpMessage(CommandSender sender, String baseCommandLabel) {
         sender.sendMessage(String.format(ColorList.TOP_FORMAT, "Help"));
         for (SubCommand subCommandVar : subCommands) {
-            if (hasPermission(sender, subCommandVar)) {
+            if (hasHelpConditions(sender, subCommandVar)) {
                 sender.sendMessage(getHelpMessage(subCommandVar, baseCommandLabel));
             }
         }
     }
 
-    private void sendNoPermissionMessage(CommandSender sender, String label, String[] args) {
-        if (args == null || args.length < 1) {
-            sender.sendMessage(ColorList.ERR + "You don't have permission to use " + ColorList.CMD + "/" + label);
-        } else {
-            sender.sendMessage(ColorList.ERR + "You don't have permission to use " + ColorList.CMD + "/" + label + " " + ColorList.SUBCMD + args[0]);
-        }
+    private void sendNoPermissionMessage(CommandSender sender, String label) {
+        sender.sendMessage(ColorList.ERR + "You don't have permission to use " + ColorList.CMD + "/" + label);
     }
 
-    private void sendPlayerOnlyMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.ERR + "The command " + ColorList.CMD + "/" + label + (args.length == 0 ? "" : (" " + ColorList.SUBCMD + args[0])) + ColorList.ERR + " must be run by a player");
-    }
-
-    protected SubCommand getAndCheckCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (!hasMainPermission(sender)) {
-            sendNoPermissionMessage(sender, label, null);
+    SubCommand getSubCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!hasPermission(sender)) {
+            sendNoPermissionMessage(sender, label);
             return null;
         }
         if (args.length < 1) {
@@ -130,22 +122,10 @@ public class CommandExecutorBase implements TabExecutor {
             sendInvalidSubCommandMessage(sender, label, args);
             return null;
         }
-        if (command.playerOnly && !(sender instanceof Player)) {
-            sendPlayerOnlyMessage(sender, label, args);
-            return null;
-        }
-        if (!hasPermission(sender, command)) {
-            sendNoPermissionMessage(sender, label, args);
-            return null;
-        }
         return command;
     }
 
-    protected boolean hasPermission(CommandSender sender, SubCommand command) {
-        return (command.permission == null || sender.hasPermission(command.permission) || !(sender instanceof Player));
-    }
-
-    protected boolean hasMainPermission(CommandSender sender) {
+    boolean hasPermission(CommandSender sender) {
         return (commandPermission == null || sender.hasPermission(commandPermission) || !(sender instanceof Player));
     }
 
@@ -170,39 +150,58 @@ public class CommandExecutorBase implements TabExecutor {
     static String getHelpMessage(SubCommand subCommand, String baseCommandLabel) {
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
-        resultBuilder.append(ColorList.SUBCMD).append(subCommand.commandName);
-        for (String alias : subCommand.aliasesUnmodifiable) {
+        resultBuilder.append(ColorList.SUBCMD).append(subCommand.getName());
+        for (String alias : subCommand.getAliases()) {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }
         resultBuilder.append(" ");
-        if (!subCommand.argumentNamesUnmodifiable.isEmpty()) {
+        if (!subCommand.getAliases().isEmpty()) {
             resultBuilder.append(ColorList.ARGS_SURROUNDER);
-            for (String argument : subCommand.argumentNamesUnmodifiable) {
+            for (String argument : subCommand.getArgumentNames()) {
                 resultBuilder.append("<").append(ColorList.ARGS).append(argument).append(ColorList.ARGS_SURROUNDER).append("> ");
             }
         }
-        resultBuilder.append(ColorList.HELP).append(subCommand.helpMessage);
+        resultBuilder.append(ColorList.HELP).append(subCommand.getHelpMessage());
         return resultBuilder.toString();
     }
 
     static String getHelpMessage(SubCommand subCommand, String baseCommandLabel, String subCommandLabel) {
-        if (!(subCommand.aliasesUnmodifiable.contains(subCommandLabel.toLowerCase()) || subCommandLabel.equalsIgnoreCase(subCommand.getName()))) {
+        if (!(subCommand.getAliases().contains(subCommandLabel.toLowerCase()) || subCommandLabel.equalsIgnoreCase(subCommand.getName()))) {
             throw new IllegalArgumentException("Given alias '" + subCommandLabel + "' doesn't belong to given SubCommand '" + subCommand.getName() + "'");
         }
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
-        resultBuilder.append(ColorList.SUBCMD).append(subCommand.commandName);
-        for (String alias : subCommand.aliasesUnmodifiable) {
+        resultBuilder.append(ColorList.SUBCMD).append(subCommand.getName());
+        for (String alias : subCommand.getAliases()) {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }
         resultBuilder.append(" ");
-        if (!subCommand.argumentNamesUnmodifiable.isEmpty()) {
+        if (!subCommand.getAliases().isEmpty()) {
             resultBuilder.append(ColorList.ARGS_SURROUNDER);
-            for (String argument : subCommand.argumentNamesUnmodifiable) {
+            for (String argument : subCommand.getArgumentNames()) {
                 resultBuilder.append("<").append(ColorList.ARGS).append(argument).append(ColorList.ARGS_SURROUNDER).append("> ");
             }
         }
-        resultBuilder.append(ColorList.HELP).append(subCommand.helpMessage);
+        resultBuilder.append(ColorList.HELP).append(subCommand.getHelpMessage());
         return resultBuilder.toString();
+    }
+
+    static boolean hasHelpConditions(CommandSender sender, SubCommand subCommand) {
+        for (CommandHelpCondition condition : subCommand.getHelpConditions()) {
+            if (!condition.canContinue(sender, subCommand)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static boolean checkFilters(CommandSender sender, Command baseCommand, SubCommand subCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs) {
+        for (CommandFilter filter : subCommand.getCommandFilters()) {
+            if (!filter.canContinue(sender, baseCommand, subCommand, baseCommandLabel, subCommandLabel, subCommandArgs)) {
+                sender.sendMessage(filter.getDeniedMessage(sender, baseCommand, subCommand, baseCommandLabel, subCommandLabel, subCommandArgs));
+                return false;
+            }
+        }
+        return true;
     }
 }
