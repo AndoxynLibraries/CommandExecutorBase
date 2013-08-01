@@ -93,6 +93,22 @@ public abstract class SubCommand {
         return this;
     }
 
+    /**
+     * @return this, for chaining.
+     */
+    public SubCommand addCommandFilter(CommandFilter filter) {
+        commandFilters.add(filter);
+        return this;
+    }
+
+    /**
+     * @return this, for chaining.
+     */
+    public SubCommand addCommandHelpCondition(CommandHelpCondition helpCondition) {
+        helpConditions.add(helpCondition);
+        return this;
+    }
+
     public String getName() {
         return commandName;
     }

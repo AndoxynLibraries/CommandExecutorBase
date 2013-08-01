@@ -56,8 +56,10 @@ public class CommandExecutorBase implements TabExecutor {
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         SubCommand subCommand = getSubCommand(sender, cmd, label, args);
         if (subCommand != null) {
-            String[] subArgs = ArrayHelpers.getSubArray(args, 1, args.length - 1);
-            subCommand.runCommand(sender, cmd, label, args[0], subArgs);
+            String[] subCommandArgs = ArrayHelpers.getSubArray(args, 1, args.length - 1);
+            if (checkFilters(sender, cmd, subCommand, label, args[0], subCommandArgs)) {
+                subCommand.runCommand(sender, cmd, label, args[0], subCommandArgs);
+            }
         }
         return true;
     }

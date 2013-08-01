@@ -32,6 +32,7 @@ public class ArgumentFilter implements CommandFilter {
 
     @Override
     public boolean canContinue(CommandSender sender, Command baseCommand, SubCommand subCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs) {
+        System.out.println("Checking " + condition + " with value " + conditionValue + " is good for " + subCommandArgs.length);
         return condition.is(conditionValue, subCommandArgs.length);
     }
 
