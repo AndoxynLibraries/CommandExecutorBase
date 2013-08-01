@@ -93,8 +93,7 @@ public class CommandExecutorBase implements TabExecutor {
     }
 
     private void sendInvalidSubCommandMessage(CommandSender sender, String label, String[] args) {
-        sender.sendMessage(ColorList.REG + "The subcommand  '" + ColorList.CMD + args[0] + ColorList.REG + "' does not exist for the command '" + ColorList.CMD + "/" + label + ColorList.REG + "'");
-        sender.sendMessage(ColorList.REG + "To see all possible subcommands type " + ColorList.CMD + "/" + label + ColorList.SUBCMD + " ?");
+        sender.sendMessage(ColorList.REG + "The subcommand '" + ColorList.SUBCMD + args[0] + ColorList.REG + "' does not exist for the command '" + ColorList.CMD + "/" + label + ColorList.REG + "'");
     }
 
     private void sendHelpMessage(CommandSender sender, String baseCommandLabel) {
@@ -135,7 +134,7 @@ public class CommandExecutorBase implements TabExecutor {
         if (subCommands.contains(subCommand)) {
             aliasToCommandMap.put(alias, subCommand);
         } else {
-            throw new IllegalArgumentException("SubCommand not part of CommandExecutorBase");
+            throw new IllegalArgumentException("SubCommand not added");
         }
     }
 
@@ -145,7 +144,7 @@ public class CommandExecutorBase implements TabExecutor {
                 aliasToCommandMap.put(alias, subCommand);
             }
         } else {
-            throw new IllegalArgumentException("SubCommand not part of CommandExecutorBase");
+            throw new IllegalArgumentException("SubCommand not added");
         }
     }
 
@@ -169,7 +168,7 @@ public class CommandExecutorBase implements TabExecutor {
 
     static String getHelpMessage(SubCommand subCommand, String baseCommandLabel, String subCommandLabel) {
         if (!(subCommand.getAliases().contains(subCommandLabel.toLowerCase()) || subCommandLabel.equalsIgnoreCase(subCommand.getName()))) {
-            throw new IllegalArgumentException("Given alias '" + subCommandLabel + "' doesn't belong to given SubCommand '" + subCommand.getName() + "'");
+            throw new IllegalArgumentException("Alias '" + subCommandLabel + "' doesn't belong to given SubCommand '" + subCommand.getName() + "'");
         }
         StringBuilder resultBuilder = new StringBuilder();
         resultBuilder.append(ColorList.CMD).append("/").append(baseCommandLabel).append(ColorList.SUBCMD).append(" ");
