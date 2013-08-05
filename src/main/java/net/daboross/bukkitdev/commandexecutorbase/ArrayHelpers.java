@@ -47,33 +47,27 @@ public class ArrayHelpers {
         return copy;
     }
 
-    public static Set<String> copyToSet(String[] array) {
-        return new HashSet<String>(Arrays.asList(array));
+    public static <T> Set<T> copyToSet(T... items) {
+        return new HashSet<T>(Arrays.asList(items));
     }
 
-    public static Set<String> copyToSetLowercase(String[] array) {
+    public static Set<String> copyToSetLowercase(String... items) {
         Set<String> result = new HashSet<String>();
-        for (String str : array) {
+        for (String str : items) {
             result.add(str.toLowerCase(Locale.ENGLISH));
         }
         return result;
     }
 
-    public static List<String> copyToList(String[] array) {
-        return new ArrayList<String>(Arrays.asList(array));
+    public static <T> List<T> copyToList(T... items) {
+        return new ArrayList<T>(Arrays.asList(items));
     }
 
-    public static List<String> copyToListLowercase(String[] array) {
+    public static List<String> copyToListLowercase(String... items) {
         List<String> result = new ArrayList<String>();
-        for (String str : array) {
+        for (String str : items) {
             result.add(str.toLowerCase(Locale.ENGLISH));
         }
-        return result;
-    }
-
-    public static List<String> singleStringList(String string) {
-        List<String> result = new ArrayList<String>();
-        result.add(string);
         return result;
     }
 
