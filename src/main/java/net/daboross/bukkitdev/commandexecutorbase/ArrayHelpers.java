@@ -99,4 +99,18 @@ public class ArrayHelpers {
             return resultBuilder.toString();
         }
     }
+
+    public static String combinedWithSeperator(List<?> list, String seperator) {
+        if (list.isEmpty()) {
+            return "";
+        } else if (list.size() == 1) {
+            return String.valueOf(list.get(0));
+        } else {
+            StringBuilder resultBuilder = new StringBuilder(String.valueOf(list.get(0)));
+            for (int i = 1; i < list.size(); i++) {
+                resultBuilder.append(seperator).append(list.get(i));
+            }
+            return resultBuilder.toString();
+        }
+    }
 }
