@@ -1,10 +1,20 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
     <groupId>net.daboross.bukkitdev</groupId>
     <artifactId>CommandExecutorBase</artifactId>
     <packaging>jar</packaging>
-    <version>1.6.0</version>
+    <version>1.5.0-SNAPSHOT</version>
     <name>CommandExecutorBase</name>
+    <scm>
+        <connection>scm:git:https://github.com/daboross/CommandExecutorBase.git</connection>
+        <developerConnection>scm:git:https://github.com/daboross/CommandExecutorBase.git</developerConnection>
+        <url>git@github.com:daboross/CommandExecutorBase.git</url>
+    </scm>
     <repositories>
         <repository>
             <id>bukkit-repo</id>
@@ -36,23 +46,23 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.6.2-R0.1-SNAPSHOT</version>
+            <version>1.6.2-R0.1</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
     </dependencies>
     <distributionManagement>
         <repository>
-            <id>nexus-release</id>
+            <id>oss.sonatype</id>
             <name>Nexus</name>
-            <uniqueVersion>true</uniqueVersion>
-            <url>http://repo.daboross.net/content/repositories/releases/</url>
+            <uniqueVersion>false</uniqueVersion>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
-            <id>nexus-snapshot</id>
-            <name>Nexus Snapshot</name>
-            <uniqueVersion>true</uniqueVersion>
-            <url>http://repo.daboross.net/content/repositories/snapshots/</url>
+            <id>oss.sonatype</id>
+            <name>OSS Sonatype Snapshot</name>
+            <uniqueVersion>false</uniqueVersion>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
