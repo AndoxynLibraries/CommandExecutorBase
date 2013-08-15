@@ -24,7 +24,7 @@
     <developers>
         <developer>
             <id>daboross</id>
-            <name>Dabo</name>
+            <name>Dabo Ross</name>
             <email>daboross@daboross.net</email>
             <url>http://www.daboross.net</url>
             <timezone>-8</timezone>
@@ -44,8 +44,7 @@
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
             <version>1.6.2-R0.1</version>
-            <type>jar</type>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
