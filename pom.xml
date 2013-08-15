@@ -5,24 +5,54 @@
         <artifactId>oss-parent</artifactId>
         <version>7</version>
     </parent>
+
     <groupId>net.daboross.bukkitdev</groupId>
-    <artifactId>CommandExecutorBase</artifactId>
+    <artifactId>command-executor-base</artifactId>
+    <version>1.5.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <version>1.5.1-SNAPSHOT</version>
+
     <name>CommandExecutorBase</name>
+    <description>A library for Bukkit plugins that allows easy creation of sub commands.</description>
+    <url>https://github.com/daboross/CommandExecutorBase</url>
+    <inceptionYear>2013</inceptionYear>
+    <licenses>
+        <license>
+            <name>GNU General Public License (GPL) Version 3</name>
+            <url>http://www.gnu.org/licenses/gpl.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>daboross</id>
+            <name>Dabo</name>
+            <email>daboross@daboross.net</email>
+            <url>http://www.daboross.net</url>
+            <timezone>-8</timezone>
+        </developer>
+    </developers>
+
     <scm>
+        <url>https://github.com/daboross/CommandExecutorBase.git</url>
         <connection>scm:git:https://github.com/daboross/CommandExecutorBase.git</connection>
-        <developerConnection>scm:git:https://github.com/daboross/CommandExecutorBase.git</developerConnection>
-        <url>git@github.com:daboross/CommandExecutorBase.git</url>
+        <developerConnection>scm:git:git@github.com:daboross/CommandExecutorBase.git</developerConnection>
     </scm>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.bukkit</groupId>
+            <artifactId>bukkit</artifactId>
+            <version>1.6.2-R0.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
     <repositories>
         <repository>
             <id>bukkit-repo</id>
             <url>http://repo.bukkit.org/content/groups/public</url>
-        </repository>
-        <repository>
-            <id>daboross-repo</id>
-            <url>http://repo.daboross.net/content/repositories/public</url>
         </repository>
     </repositories>
     <build>
@@ -39,28 +69,20 @@
             </plugin>
         </plugins>
     </build>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.6.2-R0.1</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+    <issueManagement>
+        <url>https://github.com/daboross/CommandExecutorBase.git</url>
+        <system>Github Issues</system>
+    </issueManagement>
     <distributionManagement>
         <repository>
-            <id>oss.sonatype</id>
-            <name>Nexus</name>
+            <id>sonatype-nexus-staging</id>
+            <name>OSS Sonatype staging</name>
             <uniqueVersion>false</uniqueVersion>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
-            <id>oss.sonatype</id>
-            <name>OSS Sonatype Snapshot</name>
+            <id>sonatype-nexus-snapshots</id>
+            <name>OSS Sonatype snapshots</name>
             <uniqueVersion>false</uniqueVersion>
             <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
