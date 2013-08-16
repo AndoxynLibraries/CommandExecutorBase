@@ -104,7 +104,7 @@ public abstract class SubCommand {
     /**
      * @return this, for chaining.
      */
-    public SubCommand addCommandHelpCondition(CommandPreCondition helpCondition) {
+    public SubCommand addCommandPreCondition(CommandPreCondition helpCondition) {
         helpConditions.add(helpCondition);
         return this;
     }
