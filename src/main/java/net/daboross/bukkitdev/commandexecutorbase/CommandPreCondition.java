@@ -9,7 +9,7 @@ import org.bukkit.command.CommandSender;
  *
  * @author daboross
  */
-public interface CommandHelpCondition {
+public interface CommandPreCondition {
 
     public boolean canContinue(CommandSender sender, SubCommand subCommand);
 }

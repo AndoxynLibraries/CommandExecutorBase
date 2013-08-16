@@ -3,7 +3,7 @@
  */
 package net.daboross.bukkitdev.commandexecutorbase.conditions;
 
-import net.daboross.bukkitdev.commandexecutorbase.CommandHelpCondition;
+import net.daboross.bukkitdev.commandexecutorbase.CommandPreCondition;
 import net.daboross.bukkitdev.commandexecutorbase.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
  *
  * @author daboross
  */
-public class PlayerOnlyCondition implements CommandHelpCondition {
+public class PlayerOnlyCondition implements CommandPreCondition {
 
     @Override
     public boolean canContinue(CommandSender sender, SubCommand subCommand) {

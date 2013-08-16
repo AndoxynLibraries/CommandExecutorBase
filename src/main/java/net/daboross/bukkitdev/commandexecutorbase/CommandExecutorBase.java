@@ -188,7 +188,7 @@ public class CommandExecutorBase implements TabExecutor {
     }
 
     static boolean hasHelpConditions(CommandSender sender, SubCommand subCommand) {
-        for (CommandHelpCondition condition : subCommand.getHelpConditions()) {
+        for (CommandPreCondition condition : subCommand.getHelpConditions()) {
             if (!condition.canContinue(sender, subCommand)) {
                 return false;
             }

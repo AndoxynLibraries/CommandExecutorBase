@@ -43,7 +43,7 @@ public abstract class SubCommand {
     private final List<String> aliases;
     private final List<String> argumentNames;
     private final List<CommandFilter> commandFilters;
-    private final List<CommandHelpCondition> helpConditions;
+    private final List<CommandPreCondition> helpConditions;
 
     public SubCommand(String commandName, boolean canConsoleExecute, String permission, String helpMessage) {
         if (commandName == null) {
@@ -56,7 +56,7 @@ public abstract class SubCommand {
         this.argumentNames = new ArrayList<String>();
         this.commandExecutorBasesUsingThis = new HashSet<CommandExecutorBase>();
         this.commandFilters = new ArrayList<CommandFilter>();
-        this.helpConditions = new ArrayList<CommandHelpCondition>();
+        this.helpConditions = new ArrayList<CommandPreCondition>();
         this.helpConditions.add(new PermissionCondition());
         this.commandFilters.add(new PermissionFilter());
         if (!canConsoleExecute) {
@@ -104,7 +104,7 @@ public abstract class SubCommand {
     /**
      * @return this, for chaining.
      */
-    public SubCommand addCommandHelpCondition(CommandHelpCondition helpCondition) {
+    public SubCommand addCommandHelpCondition(CommandPreCondition helpCondition) {
         helpConditions.add(helpCondition);
         return this;
     }
@@ -133,7 +133,7 @@ public abstract class SubCommand {
         return Collections.unmodifiableList(commandFilters);
     }
 
-    public List<CommandHelpCondition> getHelpConditions() {
+    public List<CommandPreCondition> getHelpConditions() {
         return Collections.unmodifiableList(helpConditions);
     }
 
