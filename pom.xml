@@ -31,6 +31,7 @@
         <developerConnection>scm:git:git@github.com:daboross/CommandExecutorBase.git</developerConnection>
     </scm>
     <properties>
+        <netbeans.hint.license>gpl3</netbeans.hint.license>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
