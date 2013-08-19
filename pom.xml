@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.daboross.bukkitdev</groupId>
     <artifactId>command-executor-base</artifactId>
-    <version>1.5.1-SNAPSHOT</version>
+    <version>1.5.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>CommandExecutorBase</name>
@@ -93,4 +93,12 @@
         <url>https://github.com/daboross/CommandExecutorBase.git</url>
         <system>Github Issues</system>
     </issueManagement>
+    <distributionManagement>
+        <repository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>OSS Sonatype snapshots</name>
+            <uniqueVersion>false</uniqueVersion>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </repository>
+    </distributionManagement>
 </project>
