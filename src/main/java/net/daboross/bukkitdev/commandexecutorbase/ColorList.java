@@ -19,8 +19,8 @@ package net.daboross.bukkitdev.commandexecutorbase;
 import org.bukkit.ChatColor;
 
 /**
- * This is a class that holds what colors PlayerData should user for different
- * purpose.
+ * This is a class that holds what colors CommandExecutorBase should use for
+ * different purposes.
  *
  * @author daboross
  */
