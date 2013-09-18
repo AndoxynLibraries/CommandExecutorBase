@@ -156,7 +156,7 @@ public class CommandExecutorBase implements TabExecutor {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }
         resultBuilder.append(" ");
-        if (!subCommand.getAliases().isEmpty()) {
+        if (!subCommand.getArgumentNames().isEmpty()) {
             resultBuilder.append(ColorList.ARGS_SURROUNDER);
             for (String argument : subCommand.getArgumentNames()) {
                 resultBuilder.append("<").append(ColorList.ARGS).append(argument).append(ColorList.ARGS_SURROUNDER).append("> ");
@@ -177,7 +177,7 @@ public class CommandExecutorBase implements TabExecutor {
             resultBuilder.append(ColorList.DIVIDER).append("|").append(ColorList.SUBCMD).append(alias);
         }
         resultBuilder.append(" ");
-        if (!subCommand.getAliases().isEmpty()) {
+        if (!subCommand.getArgumentNames().isEmpty()) {
             resultBuilder.append(ColorList.ARGS_SURROUNDER);
             for (String argument : subCommand.getArgumentNames()) {
                 resultBuilder.append("<").append(ColorList.ARGS).append(argument).append(ColorList.ARGS_SURROUNDER).append("> ");
