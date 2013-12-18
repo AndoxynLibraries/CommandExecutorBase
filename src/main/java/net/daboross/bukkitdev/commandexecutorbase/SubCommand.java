@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package net.daboross.bukkitdev.commandexecutorbase;
 
 import java.util.ArrayList;
@@ -23,17 +24,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import net.daboross.bukkitdev.commandexecutorbase.filters.PermissionFilter;
-import net.daboross.bukkitdev.commandexecutorbase.filters.PlayerOnlyFilter;
 import net.daboross.bukkitdev.commandexecutorbase.conditions.PermissionCondition;
 import net.daboross.bukkitdev.commandexecutorbase.conditions.PlayerOnlyCondition;
+import net.daboross.bukkitdev.commandexecutorbase.filters.PermissionFilter;
+import net.daboross.bukkitdev.commandexecutorbase.filters.PlayerOnlyFilter;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-/**
- *
- * @author daboross
- */
 public abstract class SubCommand {
 
     private final Set<CommandExecutorBase> commandExecutorBasesUsingThis;
@@ -152,15 +149,14 @@ public abstract class SubCommand {
     public abstract void runCommand(CommandSender sender, Command baseCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs);
 
     /**
-     *
-     * @param sender the sender initiating the command
-     * @param baseCommand the base command being called
+     * @param sender           the sender initiating the command
+     * @param baseCommand      the base command being called
      * @param baseCommandLabel the label for the base command used by the sender
-     * @param subCommand the subcommand being called
-     * @param subCommandLabel the label for the subcommand being used by the
-     * sender
-     * @param subCommandArgs the arguments so far including the one currently
-     * being typed not including the subcommand.
+     * @param subCommand       the subcommand being called
+     * @param subCommandLabel  the label for the subcommand being used by the
+     *                         sender
+     * @param subCommandArgs   the arguments so far including the one currently
+     *                         being typed not including the subcommand.
      * @return a list of possible completes for the given argument (the last one
      * in subCommandArgs)
      */

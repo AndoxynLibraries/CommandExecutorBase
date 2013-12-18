@@ -19,10 +19,6 @@ package net.daboross.bukkitdev.commandexecutorbase;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-/**
- *
- * @author daboross
- */
 public interface CommandFilter {
 
     public boolean canContinue(CommandSender sender, Command baseCommand, SubCommand subCommand, String baseCommandLabel, String subCommandLabel, String[] subCommandArgs);

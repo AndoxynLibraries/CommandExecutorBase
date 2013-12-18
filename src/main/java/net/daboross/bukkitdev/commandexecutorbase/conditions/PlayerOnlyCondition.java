@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package net.daboross.bukkitdev.commandexecutorbase.conditions;
 
 import net.daboross.bukkitdev.commandexecutorbase.CommandPreCondition;
@@ -21,10 +22,6 @@ import net.daboross.bukkitdev.commandexecutorbase.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-/**
- *
- * @author daboross
- */
 public class PlayerOnlyCondition implements CommandPreCondition {
 
     @Override

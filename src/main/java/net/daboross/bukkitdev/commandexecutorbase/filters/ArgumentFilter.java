@@ -22,10 +22,6 @@ import net.daboross.bukkitdev.commandexecutorbase.SubCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-/**
- *
- * @author daboross
- */
 public class ArgumentFilter implements CommandFilter {
 
     public static final ArgumentFilter NO_ARGS = new ArgumentFilter(ArgumentFilter.ArgumentCondition.EQUALS, 0, ColorList.ERR + "This command doesn't require any arguments.");

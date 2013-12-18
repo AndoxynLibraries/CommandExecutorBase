@@ -21,10 +21,6 @@ import net.daboross.bukkitdev.commandexecutorbase.SubCommand;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 
-/**
- *
- * @author daboross
- */
 public class PermissionCondition implements CommandPreCondition {
 
     @Override

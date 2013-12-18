@@ -23,10 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-/**
- *
- * @author daboross
- */
 public class ArrayHelpers {
 
     public static final String[] EMPTY_STRING = {};

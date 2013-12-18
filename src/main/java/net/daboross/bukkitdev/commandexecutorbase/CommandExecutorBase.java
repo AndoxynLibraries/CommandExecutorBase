@@ -26,10 +26,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 
-/**
- *
- * @author daboross
- */
 public class CommandExecutorBase implements TabExecutor {
 
     private final Map<String, SubCommand> aliasToCommandMap = new HashMap<String, SubCommand>();

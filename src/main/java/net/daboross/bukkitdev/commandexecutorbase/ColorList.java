@@ -21,8 +21,6 @@ import org.bukkit.ChatColor;
 /**
  * This is a class that holds what colors CommandExecutorBase should use for
  * different purposes.
- *
- * @author daboross
  */
 public final class ColorList {
 
